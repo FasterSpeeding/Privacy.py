@@ -6,8 +6,8 @@ import random
 import typing
 
 
-from util.functional import JsonEncoder
-from util.logging import LoggingClass
+from privacy.util.functional import JsonEncoder
+from privacy.util.logging import LoggingClass
 
 
 class APIException(Exception):

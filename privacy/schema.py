@@ -5,9 +5,9 @@ import typing
 
 from pydantic import BaseModel
 
-from util.functional import get_dict_path, JsonEncoder
-from util.logging import LoggingClass
-from util.pagination import PaginatedResponse
+from privacy.util.functional import get_dict_path, JsonEncoder
+from privacy.util.logging import LoggingClass
+from privacy.util.pagination import PaginatedResponse
 
 
 class UNSET:

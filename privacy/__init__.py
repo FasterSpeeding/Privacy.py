@@ -1,1 +1,1 @@
-from .client import Client
+from privacy.client import Client

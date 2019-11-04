@@ -1,13 +1,15 @@
 from typing import Iterable
 import json
 
-from api import RESTClient, Routes
-from schema import (
+from privacy.api import RESTClient, Routes
+from privacy.schema import (
     Card, Transaction, CardSpendLimitDurations, CardStates, CardTypes,
 )
-from util.functional import b64_encode, JsonEncoder, hmac_sign, optional
-from util.logging import LoggingClass
-from util.pagination import Direction
+from privacy.util.functional import (
+    b64_encode, JsonEncoder, hmac_sign, optional,
+)
+from privacy.util.logging import LoggingClass
+from privacy.util.pagination import Direction
 
 
 def auth_header(api_key=None):
