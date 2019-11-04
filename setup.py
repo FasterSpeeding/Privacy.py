@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
 with open("requirements.txt") as f:
-    requirements = f.readlines()
+    REQUIREMENTS = f.readlines()
 
 with open("README.md") as f:
-    readme = f.read()
+    README = f.read()
 
 
 setup(
@@ -15,9 +15,9 @@ setup(
     packages=find_packages(),
     license="BSD",
     description="A Python lib for Privacy.com",
-    long_description=readme,
+    long_description=README,
     include_package_data=True,
-    install_requires=requirements,
+    install_requires=REQUIREMENTS,
     classifiers=[
         "Development Status :: 1 - Planning",
         "License :: OSI Approved :: BSD License",
@@ -31,4 +31,4 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
-      ])
+    ])

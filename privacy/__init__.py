@@ -1,1 +1,1 @@
-from privacy.client import Client
+from privacy.http_client import HTTPClient as Client

@@ -31,10 +31,11 @@ class JsonEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:
         if isinstance(obj, datetime):
             return obj.isoformat()
-        elif issubclass(obj.__class__, Enum):
+
+        if issubclass(obj.__class__, Enum):
             return obj.value
-        else:
-            return super(JsonEncoder, self).default(obj)
+
+        return super(JsonEncoder, self).default(obj)
 
 
 def optional(**kwargs: Any) -> dict:

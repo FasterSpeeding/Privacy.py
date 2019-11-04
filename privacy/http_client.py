@@ -1,7 +1,7 @@
 from typing import Iterable
 import json
 
-from privacy.api import RESTClient, Routes
+from privacy.http_base import HTTPBaseClient, Routes
 from privacy.schema import (
     Card, Transaction, CardSpendLimitDurations, CardStates, CardTypes,
 )
@@ -16,12 +16,12 @@ def auth_header(api_key=None):
     return optional(Authorization=api_key)
 
 
-class Client(LoggingClass):
+class HTTPClient(LoggingClass):
     def __init__(
             self, api_key: str = None,
             backoff: bool = True, debug: bool = False) -> None:
         self.api_key = api_key
-        self.api = RESTClient(api_key=api_key, backoff=backoff, debug=debug)
+        self.api = HTTPBaseClient(api_key=api_key, backoff=backoff, debug=debug)
 
     def update_api_key(self, api_key: str = None) -> None:
         self.api_key = api_key
@@ -70,7 +70,7 @@ class Client(LoggingClass):
             self, card_type: CardTypes, name: str = None,
             spend_limit: CardSpendLimitDurations = None,
             spend_limit_duration: int = None, api_key=None) -> Card:
-        r = self.api(
+        request = self.api(
             Routes.CARDS_CREATE,
             headers=auth_header(api_key),
             json=optional(
@@ -80,13 +80,13 @@ class Client(LoggingClass):
                 spend_limit_duration=spend_limit_duration,
             )
         )
-        return Card(client=self.api, **r.json())
+        return Card(client=self.api, **request.json())
 
     def cards_modify(
             self, card_token: str, state: CardStates = None,
             memo: str = None, spend_limit: int = None,
             spend_limit_duration: int = None, api_key: str = None) -> Card:
-        r = self.api(
+        request = self.api(
             Routes.CARDS_MODIFY,
             headers=auth_header(api_key),
             json=optional(
@@ -97,7 +97,7 @@ class Client(LoggingClass):
                 spend_limit_duration=spend_limit_duration,
             )
         )
-        return Card(client=self.api, **r.json())
+        return Card(client=self.api, **request.json())
 
     def hoisted_card_ui_get(
             self, embed_request: dict, api_key: str = None) -> str:

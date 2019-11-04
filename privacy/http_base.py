@@ -1,9 +1,11 @@
 from platform import python_version
-from requests import session, __version__ as req_version
 from time import sleep
 import json
 import random
 import typing
+
+
+from requests import session, __version__ as req_version
 
 
 from privacy.util.functional import JsonEncoder
@@ -42,7 +44,7 @@ class Routes:
     SIMULATE_RETURN = ("POST", SIMULATE + "return")
 
 
-class RESTClient(LoggingClass):
+class HTTPBaseClient(LoggingClass):
     BASE_URL = "https://api.privacy.com/v1/"
 
     def __init__(
@@ -78,20 +80,21 @@ class RESTClient(LoggingClass):
             kwargs["headers"]["content-type"] = "application/json"
 
         url = self.BASE_URL + url.format(**url_kwargs or {})
-        r = self.session.request(method, url, **kwargs)
+        request = self.session.request(method, url, **kwargs)
 
-        if r.status_code < 400:
-            return r
+        if request.status_code < 400:
+            return request
 
         if (not self.backoff or retries == 4 or
-                r.status_code < 500 and r.status_code != 429):
-            raise APIException(r)
+                request.status_code < 500 and request.status_code != 429):
+            raise APIException(request)
         # TODO: handle other 429s and proper limit
 
         backoff = self.exponential_backoff(retries)
         retries += 1
-        self.log.warning(f"Request failed with {r.status_code}, retrying "
-                         f"in {round(backoff, 4)} seconds.")
+        self.log.warning(
+            "Request failed with %s, retrying in %s seconds.",
+            request.status_code, round(backoff, 4))
         sleep(backoff)
         return self(route, url_kwargs, retries, **kwargs)
 
