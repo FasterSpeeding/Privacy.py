@@ -1,21 +1,46 @@
 from enum import Enum
-from typing import Any, Iterable, Union
+from typing import Any, Iterable
 
 
 class Direction(Enum):
+    """
+    An enum of the directions used by
+    :class:`privacy.util.pagination.PaginatedResponse`
+    """
     UP = 0
     DOWN = 1
 
 
 class PaginatedResponse:
+    """Used for automatically iterating through paginated api endpoints."""
     total_entries = None
     total_pages = None
     _list = None
 
     def __init__(
-            self, pymodel, client: Union[object, None],
+            self, pymodel, client,
             *args, direction: Direction = None,
             limit: int = None, **kwargs: Any) -> None:
+        """
+
+        Args:
+            pymodel:
+                A :subclass:`privacy.schema.CustomBase` dataclass
+                that this will be returning objects as during iteration.
+            client:
+                :class:`privacy.http_client.HTTPClient` used
+                for making requests to crawl through pages.
+            args:
+                Args passed through to :class:`requests.session.request`.
+            direction:
+                An optional :enum:`privacy.util.pagination.Direction`
+                used for specifying the direction of the page iteration.
+            limit:
+                An optional int used to limit how many objects
+                this will return while being iterated through.
+            kwargs:
+                Kwargs passed through to :class:`requests.session.request`.
+        """
         self.client = client
         self.direction = direction or Direction.UP
         self.limit = limit
@@ -55,9 +80,17 @@ class PaginatedResponse:
 
     @property
     def cached_list(self) -> list:
+        """A simple cached list property."""
         return self.get_cached_list()
 
     def get_cached_list(self, overwrite: bool = None) -> list:
+        """
+        Args:
+            overwrite:
+
+         Returns:
+             A list of
+        """
         data = getattr(self, "_list", None)
 
         if data is None or overwrite:

@@ -12,10 +12,10 @@ from privacy.util.pagination import PaginatedResponse
 
 class UNSET:
     @staticmethod
-    def __nonzero__():
+    def __nonzero__() -> bool:
         return False
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return False
 
 
@@ -24,26 +24,63 @@ class CustomBase(BaseModel, LoggingClass):
     _json_encoder = JsonEncoder
 
     def dict(self, **kwargs) -> dict:
+        """Get this object's data in a dict."""
         data = super(CustomBase, self).dict(**kwargs)
         data.pop("client", None)
         return data
 
     def json(self, **kwargs) -> str:
+        """Get this object's data as a stringified JSON."""
         data = {key: value for key, value in
                 self.dict(**kwargs).items() if value is not UNSET}
         return json.dumps(data, cls=self._json_encoder)
 
     @classmethod
     def paginate(cls, *args, **kwargs) -> PaginatedResponse:
+        """
+        Get this class wrapped with PaginatedResponse.
+
+        returns:
+            :class:`privacy.util.pagination.PaginatedResponse`
+        """
         return PaginatedResponse(cls, *args, **kwargs)
 
     @classmethod
     def autoiter(cls, data: list, client=None) -> typing.Generator:
+        """
+        Get a generator of this object
+
+        Args:
+            data:
+                A list of dict objects that match this class to be converted.
+            client:
+                An optional :class:`privacy.http_client.HTTPClient` used
+                for allowing api calls from the returned object(s).
+
+        Returns:
+            A generator of :subclass:`privacy.schema.CustomBase`
+        """
         for obj in data:
             yield cls(client=client, **obj)
 
     @classmethod
     def autodict(cls, data: list, path: list, client=None) -> dict:
+        """
+        Get a dict of this object.
+
+        Args:
+            data:
+                A list of dict objects that match this class to be converted.
+            path:
+                A list/path of string keys used for
+                getting the key used for each object.
+            client:
+                An optional :class:`privacy.http_client.HTTPClient` used
+                for allowing api calls from the returned object(s).
+
+        Returns:
+            A dict[string] = :subclass:`privacy.schema.CustomBase`
+        """
         result = {}
         for obj in data:
             result[get_dict_path(obj, path)] = cls(client=client, **obj)

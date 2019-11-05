@@ -1,25 +1,37 @@
 from typing import Iterable
-import json
+
 
 from privacy.http_base import HTTPBaseClient, Routes
 from privacy.schema import (
-    Card, Transaction, CardSpendLimitDurations, CardStates, CardTypes,
+    Card, Transaction, CardSpendLimitDurations,
+    CardStates, CardTypes, EmbedRequest,
 )
-from privacy.util.functional import (
-    b64_encode, JsonEncoder, hmac_sign, optional,
-)
+from privacy.util.functional import b64_encode, hmac_sign, optional
 from privacy.util.logging import LoggingClass
 from privacy.util.pagination import Direction
 
 
 def auth_header(api_key=None):
+    """Optionally overwrite authorisation header for a single request."""
     return optional(Authorization=api_key)
 
 
 class HTTPClient(LoggingClass):
+    """The client used for using Privacy.com's restful api endpoints."""
     def __init__(
             self, api_key: str = None,
             backoff: bool = True, debug: bool = False) -> None:
+        """
+        Args:
+            api_key:
+                An optional string used for authentication.
+            debug:
+                An optional bool used for toggling the debug api.
+            backoff:
+                An optional bool used for disabling automatic
+                backoff and retry on status codes 5xx or 429.
+                Raises :class:`privacy.http_client.APIException` if False.
+        """
         self.api_key = api_key
         self.api = HTTPBaseClient(api_key=api_key, backoff=backoff, debug=debug)
 
@@ -31,6 +43,31 @@ class HTTPClient(LoggingClass):
             self, token: str = None, page: int = None, page_size: int = None,
             begin: str = None, end: str = None, direction: Direction = None,
             api_key: str = None) -> Iterable[Card]:
+        """
+        Used to get an iterator of the cards owned by an account.
+
+        Args:
+            token:
+                An optional string used to get a specific card.
+            page:
+                An optional int used for specifying the start page.
+            page_size:
+                An optional int used for specifying the page size.
+            begin:
+                An optional date string (in the format `YYYY-MM-DD`)
+                used to specify the starting date for the results.
+            end:
+                An optional Date string (in the format `YYYY-MM-DD`)
+                used to specify the end date for the results.
+            direction:
+                An optional :enum:`privacy.util.pagination.Direction`
+                used for specifying the direction of the page iteration.
+            api_key:
+                An optional string used for overriding authentication.
+
+        Returns:
+            :iterator:`privacy.util.pagination.PaginatedResponse`[:class:`privacy.schema.Card`]
+        """
         return Card.paginate(
             self,
             Routes.CARDS_LIST,
@@ -50,6 +87,33 @@ class HTTPClient(LoggingClass):
             page: int = None, page_size: int = None, begin: str = None,
             end: str = None, direction: Direction = None,
             api_key: str = None) -> Iterable[Transaction]:
+        """
+        Args:
+            approval_status:
+                An optional string [`approvals`, `declines`, `all`]
+                used for returning transactions with a specific status.
+            token:
+                An optional string used to get a specific card.
+            page:
+                An optional int used for specifying the start page.
+            page_size:
+                An optional int used for specifying the page size.
+            begin:
+                An optional date string (in the format `YYYY-MM-DD`)
+                used to specify the starting date for the results.
+            end:
+                An optional Date string (in the format `YYYY-MM-DD`)
+                used to specify the end date for the results.
+            direction:
+                An optional :enum:`privacy.util.pagination.Direction`
+                used for specifying the direction of the page iteration.
+            api_key:
+                An optional string used for overriding authentication.
+
+        Returns:
+            :iterator:`privacy.util.pagination.PaginatedResponse`[
+                :class:`privacy.schema.Transaction`]
+        """
         return Transaction.paginate(
             self,
             Routes.TRANSACTIONS_LIST,
@@ -67,15 +131,34 @@ class HTTPClient(LoggingClass):
 
     # Premium
     def cards_create(
-            self, card_type: CardTypes, name: str = None,
-            spend_limit: CardSpendLimitDurations = None,
-            spend_limit_duration: int = None, api_key=None) -> Card:
+            self, card_type: CardTypes, memo: str = None,
+            spend_limit: int = None,
+            spend_limit_duration: CardSpendLimitDurations = None,
+            api_key=None) -> Card:
+        """
+        PREMIUM ENDPOINT - Create a card.
+
+        Args:
+            card_type:
+                :enum:`privacy.schema.CardTypes`
+            memo:
+                An optional string name for the card.
+            spend_limit:
+                An optional int amount (pennies).
+            spend_limit_duration:
+                An optional :enum:`privacy.schema.spend_limit_duration`].
+            api_key:
+                An optional string used for overriding authentication.
+
+        Returns:
+            :class:`privacy.schema.Card`
+        """
         request = self.api(
             Routes.CARDS_CREATE,
             headers=auth_header(api_key),
             json=optional(
                 type=card_type,
-                name=name,
+                memo=memo,
                 spend_limit=spend_limit,
                 spend_limit_duration=spend_limit_duration,
             )
@@ -85,7 +168,30 @@ class HTTPClient(LoggingClass):
     def cards_modify(
             self, card_token: str, state: CardStates = None,
             memo: str = None, spend_limit: int = None,
-            spend_limit_duration: int = None, api_key: str = None) -> Card:
+            spend_limit_duration: CardSpendLimitDurations = None,
+            api_key: str = None) -> Card:
+        """
+        PREMIUM ENDPOINT - Modify an existing card.
+
+        Args:
+            card_token:
+                The unique token of the card to modify.
+            memo:
+                An optional string name for the card.
+            spend_limit:
+                An optional int amount (pennies).
+            spend_limit_duration:
+                An optional :enum:`privacy.schema.spend_limit_duration`].
+            api_key:
+                An optional string used for overriding authentication.
+
+        Returns:
+            :class:`privacy.schema.Card`
+
+        Note:
+            Setting state to :enum:`privacy.schema.card_token`.CLOSED is
+            a final action that cannot be undone.
+        """
         request = self.api(
             Routes.CARDS_MODIFY,
             headers=auth_header(api_key),
@@ -100,8 +206,20 @@ class HTTPClient(LoggingClass):
         return Card(client=self.api, **request.json())
 
     def hoisted_card_ui_get(
-            self, embed_request: dict, api_key: str = None) -> str:
-        embed_request_json = json.dumps(embed_request, cls=JsonEncoder)
+            self, embed_request: EmbedRequest, api_key: str = None) -> str:
+        """
+        PREMIUM ENDPOINT - get a hosted card UI
+
+        Args:
+            embed_request:
+                :class:`privacy.schema.EmbedRequest`
+            api_key:
+                An optional string used for overriding authentication.
+
+        Returns:
+            A string iframe body.
+        """
+        embed_request_json = embed_request.json()
         embed_request = b64_encode(bytes(embed_request_json, "utf-8"))
         embed_request_hmac = hmac_sign(api_key or self.api_key, embed_request)
 
@@ -115,6 +233,22 @@ class HTTPClient(LoggingClass):
     def auth_simulate(
             self, descriptor: str, pan: str,
             amount: int, api_key: str = None) -> dict:
+        """
+        SANDBOX ENDPOINT - Simulate an auth request from a merchant acquirer.
+
+        Args:
+            descriptor:
+                A string merchant's descriptor.
+            pan:
+                A string 16 digit card number.
+            amount:
+                An int amount (pennies) to authorise.
+            api_key:
+                An optional string used for overriding authentication.
+
+        Returns:
+            {"token": str}
+        """
         return self.api(
             Routes.SIMULATE_AUTH,
             headers=auth_header(api_key),
@@ -126,24 +260,65 @@ class HTTPClient(LoggingClass):
         ).json()
 
     def void_simulate(
-            self, token: str, amount: int, api_key: str = None) -> dict:
+            self, token: str, amount: int, api_key: str = None):
+        """
+        SANDBOX ENDPOINT - Void an existing, uncleared/pending authorisation.
+
+        Args:
+            token:
+                The string transaction token returned by Routes.SIMULATE_AUTH.
+            amount:
+                The int amount (pennies) to void.
+                Can be less than or equal to original authorisation.
+            api_key:
+                An optional string used for overriding authentication.
+        """
         return self.api(
             Routes.SIMULATE_VOID,
             headers=auth_header(api_key),
             json=dict(token=token, amount=amount),
-        ).json()
+        )
 
     def clearing_simulate(
-            self, token: str, amount: int, api_key: str = None) -> dict:
-        return self.api(
+            self, token: str, amount: int, api_key: str = None):
+        """
+        SANDBOX ENDPOINT - Clear an existing authorisation.
+
+        Args:
+            token:
+                The string transaction token returned by Routes.SIMULATE_AUTH.
+            amount:
+                The int amount (pennies) to complete.
+                Can be less than or equal to original authorisation.
+            api_key:
+                An optional string used for overriding authentication.
+        """
+        self.api(
             Routes.SIMULATE_CLEARING,
             headers=auth_header(api_key),
             json=dict(token=token, amount=amount),
-        ).json()
+        )
 
     def return_simulate(
             self, descriptor: str, pan: str,
             amount: int, api_key: str = None) -> dict:
+        """
+        SANDBOX ENDPOINT - Return/refund an amount back to a card.
+
+        Args:
+            descriptor:
+                A string merchant's descriptor.
+            pan:
+                A string 16 digit card number.
+            amount:
+                The int amount (pennies) to return to the card.
+                Can be less than or equal to original authorisation.
+            api_key:
+                An optional string used for overriding authentication.
+
+        Returns:
+            {"token": str}
+        """
         return self.api(
             Routes.SIMULATE_RETURN,
             headers=auth_header(api_key),

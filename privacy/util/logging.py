@@ -2,8 +2,15 @@ import logging
 
 
 class LoggingClass:
+    """A logging class"""
     @property
-    def log(self):
+    def log(self) -> logging.Logger:
+        """
+        Used for automatically getting a class's logger.
+
+        Returns:
+            :class:`logging.Logger`
+        """
         if not hasattr(self, "_log"):
             self._log = logging.getLogger(self.__class__.__name__)
 
