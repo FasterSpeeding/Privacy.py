@@ -58,11 +58,9 @@ class PaginatedResponse:
         self._buffer = []
 
     def __iter__(self) -> Iterable:
-        """Returns: self"""
         return self
 
     def __next__(self) -> Any:
-        """Iterate through each entry while crawling through pages."""
         if self.limit == 0:
             self.reset()
             raise StopIteration()
@@ -78,7 +76,6 @@ class PaginatedResponse:
         return self._buffer.pop()
 
     def __repr__(self) -> str:
-        """Show the pymodel being wrapped."""
         return f"<PaginatedResponse({self.pymodel.__name__})>"
 
     @property
