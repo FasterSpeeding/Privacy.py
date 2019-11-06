@@ -13,7 +13,29 @@ class Direction(Enum):
 
 
 class PaginatedResponse:
-    """Used for automatically iterating through paginated api endpoints."""
+    """
+    Used for automatically iterating through paginated api endpoints.
+
+    Attributes:
+        client:
+            :class:`privacy.api_client.APIClient`
+        direction:
+            :enum:`privacy.util.pagination.Direction`
+        limit:
+            An int value used for limiting how many objects this will return
+            while being iterated through with None being treated as no limit.
+        pymodel:
+            A :subclass:`privacy.schema.CustomBase` dataclass this wraps
+            and will be returning objects as during iteration.
+        total_entries:
+            An analytical int taken grabbed retrieved data.
+        total_pages:
+            An analytical int grabbed from retrieved data.
+        args:
+            Args passed through to :class:`requests.session.request`.
+        kwargs:
+            kwargs passed through to :class:`requests.session.request`.
+    """
     total_entries = None
     total_pages = None
     _list = None
@@ -30,7 +52,7 @@ class PaginatedResponse:
             client:
                 :class:`privacy.http_client.APIClient` used
                 for making requests to crawl through pages.
-            args:
+            *args:
                 Args passed through to :class:`requests.session.request`.
             direction:
                 An optional :enum:`privacy.util.pagination.Direction`
@@ -38,7 +60,7 @@ class PaginatedResponse:
             limit:
                 An optional int used to limit how many objects
                 this will return while being iterated through.
-            kwargs:
+            **kwargs:
                 Kwargs passed through to :class:`requests.session.request`.
         """
         self.client = client

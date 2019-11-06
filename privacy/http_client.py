@@ -9,6 +9,7 @@ import typing
 from requests import models, session, __version__ as req_version
 
 
+from privacy import GIT, VERSION
 from privacy.util.functional import JsonEncoder
 from privacy.util.logging import LoggingClass
 
@@ -34,7 +35,7 @@ class APIException(Exception):
 
 
 class Routes:
-    """The endpoints and request type exposed by Privacy.com's public api"""
+    """The endpoints exposed by Privacy.com's public api"""
     CARDS_LIST = ("GET", "card")
     TRANSACTIONS_LIST = ("GET", "transaction/{approval_status}")
 
@@ -52,7 +53,17 @@ class Routes:
 
 
 class HTTPClient(LoggingClass):
-    """The client used for handling api requests and errors."""
+    """
+    The client used for handling api requests and errors.
+
+    Attributes:
+        BASE_URL:
+            The string url used as the base for all api calls.
+        backoff:
+            A bool that toggles retries and exponential backoff.
+        session:
+            :class:`requests.session`
+    """
     BASE_URL = "https://api.privacy.com/v1/"
 
     def __init__(
@@ -72,9 +83,8 @@ class HTTPClient(LoggingClass):
         self.backoff = backoff
         self.session = session()
         self.session.headers.update({
-            "User-Agent": (f"Name-TBD (github TBD {'0.0.1'}) "
-                           f"Python/{python_version()} "
-                           f"requests/{req_version}")
+            "User-Agent": (f"Privacy.py (github {GIT} {VERSION}) "
+                           f"Python/{python_version()} requests/{req_version}")
         })
 
         if api_key:

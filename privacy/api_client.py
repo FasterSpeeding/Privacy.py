@@ -18,7 +18,16 @@ def auth_header(api_key=None):
 
 
 class APIClient(LoggingClass):
-    """The client used for using Privacy.com's restful api endpoints."""
+    """
+    The client used for using Privacy.com's restful api endpoints.
+
+    Attributes:
+        api:
+            :class:`privacy.http_client.HTTPClient`
+        api_key:
+            The string key used for authentication and some functions.
+            Will be mirrored with api.session.headers["Authorization"] when using update_api_key.
+    """
     def __init__(
             self, api_key: str = None,
             backoff: bool = True, debug: bool = False) -> None:
@@ -33,8 +42,8 @@ class APIClient(LoggingClass):
                 backoff and retry on status codes 5xx or 429.
                 Raises :class:`privacy.http_client.APIException` if False.
         """
-        self.api_key = api_key
         self.api = HTTPClient(api_key=api_key, backoff=backoff, debug=debug)
+        self.api_key = api_key
 
     def update_api_key(self, api_key: str = None) -> None:
         """
@@ -47,7 +56,7 @@ class APIClient(LoggingClass):
         """
         self.api_key = api_key
         if api_key:
-            self.api.session.headers["Authorization"] = api_key
+            self.api.session.headers["Authorization"] = "api-key " + api_key
         else:
             self.api.session.headers.pop("Authorization", None)
 

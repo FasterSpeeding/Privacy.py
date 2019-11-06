@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 
+
 with open("requirements.txt") as f:
     REQUIREMENTS = f.readlines()
 
@@ -11,7 +12,7 @@ setup(
     name="privacy.py",
     author="FasterSpeeding",
     url="https://github.com/FasterSpeeding/privacy.py",
-    version="0.0.1",
+    version="",
     packages=find_packages(),
     license="BSD",
     description="A Python lib for Privacy.com",
