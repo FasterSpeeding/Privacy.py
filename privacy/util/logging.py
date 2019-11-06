@@ -6,7 +6,7 @@ class LoggingClass:
     @property
     def log(self) -> logging.Logger:
         """
-        Used for automatically getting a class's logger.
+        Used for automatically getting a class' logger.
 
         Returns:
             :class:`logging.Logger`

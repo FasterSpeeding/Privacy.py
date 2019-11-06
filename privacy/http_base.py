@@ -65,8 +65,8 @@ class HTTPBaseClient(LoggingClass):
                 An optional bool used for toggling the debug api.
             backoff:
                 An optional bool used for disabling automatic
-                backoff and retry on status codes 5xx or 429 and
-                raise :class:`privacy.http_client.APIException` if False.
+                backoff and retry on status codes 5xx or 429.
+                Raises :class:`privacy.http_client.APIException` if False.
         """
         self.backoff = backoff
         self.session = session()
@@ -87,7 +87,6 @@ class HTTPBaseClient(LoggingClass):
             url_kwargs: typing.Dict[str, str] = None,
             retries: int = 0, **kwargs) -> models.Response:
         """
-
         Args:
             route:
                 The route for this call from :class:`privacy.http_base.Routes`
@@ -142,6 +141,6 @@ class HTTPBaseClient(LoggingClass):
                 An int of how many times the request has been retried.
 
         Returns:
-            A exponentially random float used for backoff.
+            An exponentially random float used for backoff.
         """
         return (2 ** retries) + random.randint(0, 1000) / 1000

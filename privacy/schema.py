@@ -41,14 +41,15 @@ class CustomBase(BaseModel, LoggingClass):
         Get this class wrapped with PaginatedResponse.
 
         returns:
-            :class:`privacy.util.pagination.PaginatedResponse`
+            :iterator:`privacy.util.pagination.PaginatedResponse`[
+                :subclass:`privacy.schema.CustomBase`]
         """
         return PaginatedResponse(cls, *args, **kwargs)
 
     @classmethod
     def autoiter(cls, data: list, client=None) -> typing.Generator:
         """
-        Get a generator of this object
+        Get a generator of instances of this object.
 
         Args:
             data:
@@ -66,14 +67,13 @@ class CustomBase(BaseModel, LoggingClass):
     @classmethod
     def autodict(cls, data: list, path: list, client=None) -> dict:
         """
-        Get a dict of this object.
+        Get a dict of instances of this object.
 
         Args:
             data:
                 A list of dict objects that match this class to be converted.
             path:
-                A list/path of string keys used for
-                getting the key used for each object.
+                A list/path of string keys for getting the key used for each object.
             client:
                 An optional :class:`privacy.http_client.HTTPClient` used
                 for allowing api calls from the returned object(s).

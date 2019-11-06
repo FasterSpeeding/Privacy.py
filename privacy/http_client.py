@@ -44,7 +44,7 @@ class HTTPClient(LoggingClass):
             begin: str = None, end: str = None, direction: Direction = None,
             api_key: str = None) -> Iterable[Card]:
         """
-        Used to get an iterator of the cards owned by an account.
+        Get an iterator of the cards owned by this account.
 
         Args:
             token:
@@ -88,6 +88,8 @@ class HTTPClient(LoggingClass):
             end: str = None, direction: Direction = None,
             api_key: str = None) -> Iterable[Transaction]:
         """
+        Get an iterator of the transactions under this account.
+
         Args:
             approval_status:
                 An optional string [`approvals`, `declines`, `all`]
@@ -273,7 +275,7 @@ class HTTPClient(LoggingClass):
             api_key:
                 An optional string used for overriding authentication.
         """
-        return self.api(
+        self.api(
             Routes.SIMULATE_VOID,
             headers=auth_header(api_key),
             json=dict(token=token, amount=amount),

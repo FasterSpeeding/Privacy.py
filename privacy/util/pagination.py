@@ -22,7 +22,6 @@ class PaginatedResponse:
             *args, direction: Direction = None,
             limit: int = None, **kwargs: Any) -> None:
         """
-
         Args:
             pymodel:
                 A :subclass:`privacy.schema.CustomBase` dataclass
@@ -88,7 +87,7 @@ class PaginatedResponse:
         Args:
             overwrite:
 
-         Returns:
+        Returns:
              A list of
         """
         data = getattr(self, "_list", None)
