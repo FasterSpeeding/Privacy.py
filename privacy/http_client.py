@@ -9,7 +9,7 @@ import typing
 from requests import models, session, __version__ as req_version
 
 
-from privacy import GIT, VERSION
+from privacy.util import GIT, VERSION
 from privacy.util.functional import JsonEncoder
 from privacy.util.logging import LoggingClass
 
