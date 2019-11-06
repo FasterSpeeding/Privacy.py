@@ -1,2 +1,2 @@
 """A privacy.com API wrapper."""
-from privacy.http_client import HTTPClient as Client
+from privacy.api_client import APIClient as Client

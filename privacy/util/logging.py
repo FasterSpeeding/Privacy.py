@@ -1,8 +1,11 @@
+"""Used for consistent logging across classes."""
 import logging
 
 
 class LoggingClass:
     """A logging class"""
+    _log: logging.Logger
+
     @property
     def log(self) -> logging.Logger:
         """
