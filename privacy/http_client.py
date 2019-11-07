@@ -1,7 +1,6 @@
 """The client used for handling the raw requests."""
 from platform import python_version
 from time import sleep
-import json
 import random
 import typing
 
@@ -10,7 +9,6 @@ from requests import models, session, __version__ as req_version
 
 
 from privacy.util import GIT, VERSION
-from privacy.util.functional import JsonEncoder
 from privacy.util.logging import LoggingClass
 
 
@@ -114,10 +112,9 @@ class HTTPClient(LoggingClass):
         """
         method, url = route
 
-        # Ensure our custom encoder is used for json data.
-        data = kwargs.pop("json", None)
-        if data:
-            kwargs["data"] = json.dumps(data, cls=JsonEncoder)
+        # Ensure the custom json encoder is used for pydantic objects.
+        if hasattr(kwargs.get("json"), "json"):
+            kwargs["data"] = kwargs.pop("json").json()
             if "headers" not in kwargs:
                 kwargs["headers"] = {}
 

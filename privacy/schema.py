@@ -1,42 +1,31 @@
 """The data models and enums returned and accepted by the api."""
 from datetime import datetime
 from enum import Enum
-import json
 import typing
 
 from pydantic import BaseModel
 
-from privacy.util.functional import get_dict_path, JsonEncoder
+from privacy.util.functional import get_dict_path
 from privacy.util.logging import LoggingClass
 from privacy.util.pagination import PaginatedResponse
-
-
-class UNSET:
-    """Type used to represent optional attributes that aren't present."""
-    @staticmethod
-    def __nonzero__() -> bool:
-        return False
-
-    def __bool__(self) -> bool:
-        return False
 
 
 class CustomBase(BaseModel, LoggingClass):
     """A custom version of :class:`pydantic.BaseModel` used to handle api objects."""
     client: typing.Any = None
-    _json_encoder = JsonEncoder
+
+    class Config:
+        """Config for customising the behaviour of CustomBase."""
+        json_encoders = {
+            datetime: lambda obj: obj.isoformat(),
+            Enum: lambda obj: obj.value,
+        }
 
     def dict(self, **kwargs) -> dict:
         """Get this object's data as a dict."""
         data = super(CustomBase, self).dict(**kwargs)
         data.pop("client", None)
         return data
-
-    def json(self, **kwargs) -> str:
-        """Get this object's data as a stringified JSON."""
-        data = {key: value for key, value in
-                self.dict(**kwargs).items() if value is not UNSET}
-        return json.dumps(data, cls=self._json_encoder)
 
     @classmethod
     def paginate(cls, *args, **kwargs) -> PaginatedResponse:
@@ -166,10 +155,10 @@ class Card(CustomBase):
         type:
             :enum:`privacy.schema.CardTypes`
     """
-    cvv: str = UNSET
+    cvv: typing.Optional[str]
     funding: FundingAccount
-    exp_month: str = UNSET
-    exp_year: str = UNSET
+    exp_month: typing.Optional[str]
+    exp_year: typing.Optional[str]
     hostname: str  # TODO: empty if not applicable?
     last_four: str
     memo: str
@@ -179,6 +168,7 @@ class Card(CustomBase):
     state: CardStates
     token: str
     type: CardTypes
+    test: typing.Optional[str]
 
     def update(
             self, state: CardStates = None, memo: str = None,
@@ -338,7 +328,7 @@ class Transaction(CustomBase):
     amount: int
     card: Card
     created: datetime
-    events: typing.List[Event] = UNSET
+    events: typing.List[Event]
     funding: typing.List[FundingAccount]
     merchant: Merchant
     result: TransactionResults
@@ -364,7 +354,7 @@ class EmbedRequest(CustomBase):
     """
     token: str
     css: str
-    expiration: datetime = UNSET  # ISO 8601
+    expiration: typing.Optional[datetime]  # ISO 8601
 
     def __repr__(self):
         return f"<EmbedRequest({self.token})>"

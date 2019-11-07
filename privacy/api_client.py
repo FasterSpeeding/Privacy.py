@@ -63,7 +63,7 @@ class APIClient(LoggingClass):
     def cards_list(
             self, token: str = None, page: int = None, page_size: int = None,
             begin: str = None, end: str = None, direction: Direction = None,
-            api_key: str = None) -> Iterable[Card]:
+            limit: int = None, api_key: str = None) -> Iterable[Card]:
         """
         Get an iterator of the cards owned by this account.
 
@@ -83,6 +83,9 @@ class APIClient(LoggingClass):
             direction:
                 An optional :enum:`privacy.util.pagination.Direction`
                 used for specifying the direction of the page iteration.
+            limit:
+                An optional int used to limit how many objects
+                the returned iterator will return during iteration.
             api_key:
                 An optional string used for overriding authentication.
 
@@ -94,6 +97,7 @@ class APIClient(LoggingClass):
             Routes.CARDS_LIST,
             headers=auth_header(api_key),
             direction=direction,
+            limit=limit,
             params=optional(
                 card_token=token,
                 page=page,
@@ -106,7 +110,7 @@ class APIClient(LoggingClass):
     def transactions_list(
             self, approval_status: str = "all", token: str = None,
             page: int = None, page_size: int = None, begin: str = None,
-            end: str = None, direction: Direction = None,
+            end: str = None, direction: Direction = None, limit: int = None,
             api_key: str = None) -> Iterable[Transaction]:
         """
         Get an iterator of the transactions under this account.
@@ -130,6 +134,9 @@ class APIClient(LoggingClass):
             direction:
                 An optional :enum:`privacy.util.pagination.Direction`
                 used for specifying the direction of the page iteration.
+            limit:
+                An optional int used to limit how many objects
+                the returned iterator will return during iteration.
             api_key:
                 An optional string used for overriding authentication.
 
@@ -143,6 +150,7 @@ class APIClient(LoggingClass):
             dict(approval_status=approval_status),
             headers=auth_header(api_key),
             direction=direction,
+            limit=limit,
             params=optional(
                 transaction_token=token,
                 page=page,

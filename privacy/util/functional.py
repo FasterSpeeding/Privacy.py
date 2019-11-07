@@ -1,11 +1,8 @@
 """Classes and functions used by this module."""
-from datetime import datetime
-from enum import Enum
 from typing import Any, List
 import base64
 import hashlib
 import hmac
-import json
 
 
 def b64_encode(data: bytes) -> str:
@@ -60,18 +57,6 @@ def hmac_sign(key: str, msg: str) -> str:
         digestmod=hashlib.sha256,
     )
     return b64_encode(hmac_buffer.digest())
-
-
-class JsonEncoder(json.JSONEncoder):
-    """A custom json encoder used by this module."""
-    def default(self, obj: Any) -> Any:
-        if isinstance(obj, datetime):
-            return obj.isoformat()
-
-        if issubclass(obj.__class__, Enum):
-            return obj.value
-
-        return super(JsonEncoder, self).default(obj)
 
 
 def optional(**kwargs: Any) -> dict:
