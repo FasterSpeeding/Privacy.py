@@ -123,10 +123,10 @@ class Card(CustomBase):
     The card model.
 
     Attributes:
-        cvv (str, optional): PREMIUM The three digit cvv code on the card.
+        cvv (str, premium): The three digit cvv code on the card.
         funding (privacy.schema.FundingAccount): The card's funding account.
-        exp_month (str, optional): PREMIUM The expiry month of this card (format MM).
-        exp_year (str, optional): PREMIUM The expiry year of this card (format YYYY).
+        exp_month (str, premium): The expiry month of this card (format MM).
+        exp_year (str, premium): The expiry year of this card (format YYYY).
         hostname (str): The hostname of the card's locked merchant (empty if not applicable).
         last_four (str): The last four digits of the card's number.
         memo (str): The name of the card.
@@ -274,9 +274,9 @@ class Transaction(CustomBase):
         amount (int): The authorization  amount of the transaction (in pennies).
         card (privacy.schema.Card): The card tied to this transaction.
         created (datetime.datetime): The datetime of when this transaction first occurred.
-        events (list[ privacy.schema.Event ]): PREMIUM the events that have modified this.
-        funding (list[ privacy.schema.FundingAccount ]): All the founding sources..
-        merchant (privacy.schema.Merchant): The merchant tied to this transation.
+        events (list[ privacy.schema.Event ], premium): the events that have modified this.
+        funding (list[ privacy.schema.FundingAccount ]): All the founding sources.
+        merchant (privacy.schema.Merchant): The merchant tied to this transaction.
         result (privacy.schema.TransactionResults): The result of this transaction.
         settled_amount (int): The amount of that has been settled (in pennies) (may change).
         status (privacy.schema.TransactionStatuses): The status of this transaction.

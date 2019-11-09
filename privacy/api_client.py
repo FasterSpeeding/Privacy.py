@@ -114,7 +114,7 @@ class APIClient(LoggingClass):
         Args:
             approval_status (str, optional): One of [`approvals`, `declines`, `all`] used to
                 get transactions with a specific status.
-            token (str, optional): Used to get a specific transaction..
+            token (str, optional): Used to get a specific transaction.
             page (int, optional): Used to specify the start page.
             page_size (int, optional): Used to specify the page size.
             begin (str, optional): The starting date of the results as a date string (`YYYY-MM-DD`).
