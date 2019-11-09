@@ -96,18 +96,28 @@ class HTTPClient(LoggingClass):
             kwargs: The kwargs to be passed to `requests.session.request`.
 
         Returns:
-            `requests.models.response`: The response object.
+            response (requests.models.response): The response objects.
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
         """
-        method, url = route
+        # Make sure headers is pre-set for upcoming checks.
+        if "headers" not in kwargs:
+            kwargs["headers"] = {}
+
+        # Ensure that passed auth key is formatted correctly or api key is already set in sesssion headers.
+        if "Authorization" in kwargs["headers"]:
+            kwargs["headers"]["Authorization"] = "api-key " + kwargs["headers"]["Authorization"]
+        elif "Authorization" not in self.session.headers:
+            raise TypeError("authentication key is unset.")
 
         # Ensure the custom json encoder is used for pydantic objects.
         if hasattr(kwargs.get("json"), "json"):
             kwargs["data"] = kwargs.pop("json").json()
-            if "headers" not in kwargs:
-                kwargs["headers"] = {}
-
             kwargs["headers"]["content-type"] = "application/json"
 
+        method, url = route
         url = self.BASE_URL + url.format(**url_kwargs or {})
         request = self.session.request(method, url, **kwargs)
 

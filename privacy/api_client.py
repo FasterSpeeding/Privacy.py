@@ -23,8 +23,6 @@ class APIClient(LoggingClass):
 
     Attributes:
         api (privacy.http_client.HTTPClient): The client used for making requests.
-        api_key (str, optional): The key used for authentication and some functions.
-            Will be mirrored with api.session.headers["Authorization"] when using update_api_key.
     """
     def __init__(
             self, api_key: str = None,
@@ -37,7 +35,6 @@ class APIClient(LoggingClass):
                 Will raises `privacy.http_client.APIException` instead of retrying if False.
         """
         self.api = HTTPClient(api_key=api_key, backoff=backoff, debug=debug)
-        self.api_key = api_key
 
     def update_api_key(self, api_key: str = None) -> None:
         """
@@ -46,11 +43,26 @@ class APIClient(LoggingClass):
         Args:
             api_key (str, optional): The key used for authentication, will unset if not passed.
         """
-        self.api_key = api_key
         if api_key:
             self.api.session.headers["Authorization"] = "api-key " + api_key
         else:
             self.api.session.headers.pop("Authorization", None)
+
+    def get_api_key(self):
+        """
+        Get the set api key.
+
+        Returns:
+            str: Api key.
+
+        Raises:
+            TypeError: If api authentication key is unset.
+        """
+        api_key = self.api.session.headers.get("Authorization")
+        if not api_key:
+            raise TypeError("Api authentication key is unset.")
+
+        return api_key.replace("api-key", "")
 
     def cards_list(
             self, token: str = None, page: int = None, page_size: int = None,
@@ -71,6 +83,10 @@ class APIClient(LoggingClass):
 
         Returns:
             `privacy.util.pagination.PaginatedResponse` [ `privacy.schema.Card` ]
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
         """
         return Card.paginate(
             self,
@@ -109,6 +125,10 @@ class APIClient(LoggingClass):
 
         Returns:
             `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.Transaction` ]
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
         """
         return Transaction.paginate(
             self,
@@ -144,6 +164,10 @@ class APIClient(LoggingClass):
 
         Returns:
             `privacy.schema.Card`
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
         """
         request = self.api(
             Routes.CARDS_CREATE,
@@ -176,6 +200,10 @@ class APIClient(LoggingClass):
         Returns:
             `privacy.schema.Card`
 
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
+
         Note:
             Setting state to `privacy.schema.CardStates.CLOSED` cannot be undone.
         """
@@ -203,10 +231,16 @@ class APIClient(LoggingClass):
 
         Returns:
             str: The iframe body.
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
         """
+        api_key = api_key or self.get_api_key()
+
         embed_request_json = embed_request.json()
         embed_request = b64_encode(bytes(embed_request_json, "utf-8"))
-        embed_request_hmac = hmac_sign(api_key or self.api_key, embed_request)
+        embed_request_hmac = hmac_sign(api_key, embed_request)
 
         return self.api(
             Routes.HOSTED_CARD_UI_GET,
@@ -229,6 +263,10 @@ class APIClient(LoggingClass):
 
         Returns:
             dict: {"token": str}
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
         """
         return self.api(
             Routes.SIMULATE_AUTH,
@@ -250,6 +288,10 @@ class APIClient(LoggingClass):
             amount (int): The amount to void (in pennies).
                 Can be less than or equal to original authorisation.
             api_key (str): Used to override authentication.
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
         """
         self.api(
             Routes.SIMULATE_VOID,
@@ -267,6 +309,10 @@ class APIClient(LoggingClass):
             amount (int): The amount to complete (in pennies).
                 Can be less than or equal to original authorisation.
             api_key (str): Used to override authentication.
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
         """
         self.api(
             Routes.SIMULATE_CLEARING,
@@ -289,6 +335,10 @@ class APIClient(LoggingClass):
 
         Returns:
             dict: {"token": str}
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
         """
         return self.api(
             Routes.SIMULATE_RETURN,

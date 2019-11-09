@@ -45,6 +45,9 @@ class PaginatedResponse:
             limit (int, optional): Used to limit how many object(s) this
                 will return while being iterated through.
             **kwargs: Kwargs passed through to `requests.session.request`.
+
+        Raises:
+            TypeError: If invalid pagination direction is supplied.
         """
         self.client = client
         self.direction = direction or Direction.UP

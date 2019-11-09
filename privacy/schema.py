@@ -167,6 +167,10 @@ class Card(CustomBase):
         Note:
             Setting state to `privacy.schema.CardStates.CLOSED` is
             a final action that cannot be undone.
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
         """
         card = self.client.cards_modify(
             self.token, state, memo, spend_limit,
