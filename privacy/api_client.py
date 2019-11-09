@@ -70,7 +70,7 @@ class APIClient(LoggingClass):
             api_key (str, optional): Used to override authentication.
 
         Returns:
-            privacy.util.pagination.PaginatedResponse[:class:`privacy.schema.Card`]
+            privacy.util.pagination.PaginatedResponse[`privacy.schema.Card`]
         """
         return Card.paginate(
             self,
