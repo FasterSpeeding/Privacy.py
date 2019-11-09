@@ -165,7 +165,7 @@ class Card(CustomBase):
             api_key (str, optional): A key used for overriding authentication.
 
         Note:
-            Setting state to `privacy.schema.CardSpendLimitDurations`.CLOSED is
+            Setting state to `privacy.schema.CardStates.CLOSED` is
             a final action that cannot be undone.
         """
         card = self.client.cards_modify(
