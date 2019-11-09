@@ -22,10 +22,8 @@ class APIClient(LoggingClass):
     The client used for using Privacy.com's restful api endpoints.
 
     Attributes:
-        api:
-            :class:`privacy.http_client.HTTPClient`
-        api_key:
-            The string key used for authentication and some functions.
+        api (privacy.http_client.HTTPClient): The client used for making requests.
+        api_key (str, optional): The key used for authentication and some functions.
             Will be mirrored with api.session.headers["Authorization"] when using update_api_key.
     """
     def __init__(
@@ -33,14 +31,10 @@ class APIClient(LoggingClass):
             backoff: bool = True, debug: bool = False) -> None:
         """
         Args:
-            api_key:
-                An optional string used for authentication.
-            debug:
-                An optional bool used for toggling the debug api.
-            backoff:
-                An optional bool used for disabling automatic
-                backoff and retry on status codes 5xx or 429.
-                Raises :class:`privacy.http_client.APIException` if False.
+            api_key (str, optional): Used to set the default authorisation.
+            debug (bool, optional): Used to enable the debug api.
+            backoff (bool, optional): Used to disable toggle retry on status codes 5xx or 429.
+                Will raises `privacy.http_client.APIException` instead of retrying if False.
         """
         self.api = HTTPClient(api_key=api_key, backoff=backoff, debug=debug)
         self.api_key = api_key
@@ -50,9 +44,7 @@ class APIClient(LoggingClass):
         Update or unset the default authorisation key used by an initiated client.
 
         Args:
-            api_key:
-                An optional string used for authentication,
-                will unset if not passed.
+            api_key (str, optional): The key used for authentication, will unset if not passed.
         """
         self.api_key = api_key
         if api_key:
@@ -68,29 +60,17 @@ class APIClient(LoggingClass):
         Get an iterator of the cards owned by this account.
 
         Args:
-            token:
-                An optional string used to get a specific card.
-            page:
-                An optional int used for specifying the start page.
-            page_size:
-                An optional int used for specifying the page size.
-            begin:
-                An optional date string (in the format `YYYY-MM-DD`)
-                used to specify the starting date for the results.
-            end:
-                An optional Date string (in the format `YYYY-MM-DD`)
-                used to specify the end date for the results.
-            direction:
-                An optional :enum:`privacy.util.pagination.Direction`
-                used for specifying the direction of the page iteration.
-            limit:
-                An optional int used to limit how many objects
-                the returned iterator will return during iteration.
-            api_key:
-                An optional string used for overriding authentication.
+            token (str, optional): Used to get a specific card.
+            page (str, optional): Used to specify the start page.
+            page_size (str, optional): Used to specify the page size.
+            begin (str, optional): The start date of the results as a date string (`YYYY-MM-DD`).
+            end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
+            direction (privacy.util.pagination.Direction, optional): The direction of iteration.
+            limit (int, optional): Limit how many objects the iterator will return during iteration.
+            api_key (str, optional): Used to override authentication.
 
         Returns:
-            :iterator:`privacy.util.pagination.PaginatedResponse`[:class:`privacy.schema.Card`]
+            privacy.util.pagination.PaginatedResponse[:class:`privacy.schema.Card`]
         """
         return Card.paginate(
             self,
@@ -116,33 +96,19 @@ class APIClient(LoggingClass):
         Get an iterator of the transactions under this account.
 
         Args:
-            approval_status:
-                An optional string [`approvals`, `declines`, `all`]
-                used for returning transactions with a specific status.
-            token:
-                An optional string used to get a specific card.
-            page:
-                An optional int used for specifying the start page.
-            page_size:
-                An optional int used for specifying the page size.
-            begin:
-                An optional date string (in the format `YYYY-MM-DD`)
-                used to specify the starting date for the results.
-            end:
-                An optional Date string (in the format `YYYY-MM-DD`)
-                used to specify the end date for the results.
-            direction:
-                An optional :enum:`privacy.util.pagination.Direction`
-                used for specifying the direction of the page iteration.
-            limit:
-                An optional int used to limit how many objects
-                the returned iterator will return during iteration.
-            api_key:
-                An optional string used for overriding authentication.
+            approval_status (str, optional): One of [`approvals`, `declines`, `all`] used to
+                get transactions with a specific status.
+            token (str, optional): Used to get a specific transaction..
+            page (int, optional): Used to specify the start page.
+            page_size (int, optional): Used to specify the page size.
+            begin (str, optional): The starting date of the results as a date string (`YYYY-MM-DD`).
+            end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
+            direction (privacy.util.pagination.Direction, optional): The direction of iteration.
+            limit (int, optional): Limit how many objects the iterator will return during iteration.
+            api_key (str, optional): Used to override authentication.
 
         Returns:
-            :iterator:`privacy.util.pagination.PaginatedResponse`[
-                :class:`privacy.schema.Transaction`]
+            `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.Transaction` ]
         """
         return Transaction.paginate(
             self,
@@ -170,19 +136,14 @@ class APIClient(LoggingClass):
         PREMIUM ENDPOINT - Create a card.
 
         Args:
-            card_type:
-                :enum:`privacy.schema.CardTypes`
-            memo:
-                An optional string name for the card.
-            spend_limit:
-                An optional int amount (pennies).
-            spend_limit_duration:
-                An optional :enum:`privacy.schema.spend_limit_duration`].
-            api_key:
-                An optional string used for overriding authentication.
+            card_type (privacy.schema.CardTypes): The card type.
+            memo (str, optional): The card's name.
+            spend_limit (int, optional): The spending limit of the card (in pennies).
+            spend_limit_duration (privacy.schema.CardSpendLimitDurations, optional): The spend limit duration.
+            api_key (str, optional): Used to override authentication.
 
         Returns:
-            :class:`privacy.schema.Card`
+            `privacy.schema.Card`
         """
         request = self.api(
             Routes.CARDS_CREATE,
@@ -205,25 +166,18 @@ class APIClient(LoggingClass):
         PREMIUM ENDPOINT - Modify an existing card.
 
         Args:
-            card_token:
-                The unique token of the card to modify.
-            state:
-                An optional :enum:`privacy.schema.CardStates`.
-            memo:
-                An optional string name for the card.
-            spend_limit:
-                An optional int amount (pennies).
-            spend_limit_duration:
-                An optional :enum:`privacy.schema.spend_limit_duration`].
-            api_key:
-                An optional string used for overriding authentication.
+            card_token (str): The unique token of the card being modified.
+            state (privacy.schema.CardStates, optional): The new card state.
+            memo (str, optional): The name card name.
+            spend_limit (int, optional): The new card spend limit (in pennies).
+            spend_limit_duration (privacy.schema.CardSpendLimitDurations, optional): The spend limit duration.
+            api_key (str, optional): Used to override authentication.
 
         Returns:
-            :class:`privacy.schema.Card`
+            `privacy.schema.Card`
 
         Note:
-            Setting state to :enum:`privacy.schema.card_token`.CLOSED is
-            a final action that cannot be undone.
+            Setting state to `privacy.schema.CardStates.CLOSED` cannot be undone.
         """
         request = self.api(
             Routes.CARDS_MODIFY,
@@ -244,13 +198,11 @@ class APIClient(LoggingClass):
         PREMIUM ENDPOINT - get a hosted card UI
 
         Args:
-            embed_request:
-                :class:`privacy.schema.EmbedRequest`
-            api_key:
-                An optional string used for overriding authentication.
+            embed_request (privacy.schema.EmbedRequest): The embed request.
+            api_key (str, optional): Used to override authentication.
 
         Returns:
-            A string iframe body.
+            str: The iframe body.
         """
         embed_request_json = embed_request.json()
         embed_request = b64_encode(bytes(embed_request_json, "utf-8"))
@@ -270,17 +222,13 @@ class APIClient(LoggingClass):
         SANDBOX ENDPOINT - Simulate an auth request from a merchant acquirer.
 
         Args:
-            descriptor:
-                A string merchant's descriptor.
-            pan:
-                A string 16 digit card number.
-            amount:
-                An int amount (pennies) to authorise.
-            api_key:
-                An optional string used for overriding authentication.
+            descriptor (str): The merchant's descriptor.
+            pan (str): The 16 digit card number.
+            amount (int): The amount to authorise (in pennies).
+            api_key (str): Used to override authentication.
 
         Returns:
-            {"token": str}
+            dict: {"token": str}
         """
         return self.api(
             Routes.SIMULATE_AUTH,
@@ -298,13 +246,10 @@ class APIClient(LoggingClass):
         SANDBOX ENDPOINT - Void an existing, uncleared/pending authorisation.
 
         Args:
-            token:
-                The string transaction token returned by Routes.SIMULATE_AUTH.
-            amount:
-                The int amount (pennies) to void.
+            token (str): The transaction token returned by Routes.SIMULATE_AUTH.
+            amount (int): The amount to void (in pennies).
                 Can be less than or equal to original authorisation.
-            api_key:
-                An optional string used for overriding authentication.
+            api_key (str): Used to override authentication.
         """
         self.api(
             Routes.SIMULATE_VOID,
@@ -318,13 +263,10 @@ class APIClient(LoggingClass):
         SANDBOX ENDPOINT - Clear an existing authorisation.
 
         Args:
-            token:
-                The string transaction token returned by Routes.SIMULATE_AUTH.
-            amount:
-                The int amount (pennies) to complete.
+            token (str): The transaction token returned by Routes.SIMULATE_AUTH.
+            amount (int): The amount to complete (in pennies).
                 Can be less than or equal to original authorisation.
-            api_key:
-                An optional string used for overriding authentication.
+            api_key (str): Used to override authentication.
         """
         self.api(
             Routes.SIMULATE_CLEARING,
@@ -339,18 +281,14 @@ class APIClient(LoggingClass):
         SANDBOX ENDPOINT - Return/refund an amount back to a card.
 
         Args:
-            descriptor:
-                A string merchant's descriptor.
-            pan:
-                A string 16 digit card number.
-            amount:
-                The int amount (pennies) to return to the card.
+            descriptor (str): The merchant's descriptor.
+            pan (str): A 16 digit card number.
+            amount (int): The amount to return to the card (in pennies).
                 Can be less than or equal to original authorisation.
-            api_key:
-                An optional string used for overriding authentication.
+            api_key (str, optional): Used to override authentication.
 
         Returns:
-            {"token": str}
+            dict: {"token": str}
         """
         return self.api(
             Routes.SIMULATE_RETURN,

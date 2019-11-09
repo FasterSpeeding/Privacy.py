@@ -11,7 +11,7 @@ from privacy.util.pagination import PaginatedResponse
 
 
 class CustomBase(BaseModel, LoggingClass):
-    """A custom version of :class:`pydantic.BaseModel` used to handle api objects."""
+    """A custom version of `pydantic.BaseModel` used to handle api objects."""
     client: typing.Any = None
 
     class Config:
@@ -21,9 +21,9 @@ class CustomBase(BaseModel, LoggingClass):
             Enum: lambda obj: obj.value,
         }
 
-    def dict(self, **kwargs) -> dict:
+    def dict(self, *args, **kwargs) -> dict:
         """Get this object's data as a dict."""
-        data = super(CustomBase, self).dict(**kwargs)
+        data = super(CustomBase, self).dict(*args, **kwargs)
         data.pop("client", None)
         return data
 
@@ -32,9 +32,8 @@ class CustomBase(BaseModel, LoggingClass):
         """
         Get this class wrapped with PaginatedResponse.
 
-        returns:
-            :iterator:`privacy.util.pagination.PaginatedResponse`[
-                :subclass:`privacy.schema.CustomBase`]
+        Returns:
+            `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.CustomBase` ]
         """
         return PaginatedResponse(cls, *args, **kwargs)
 
@@ -44,14 +43,12 @@ class CustomBase(BaseModel, LoggingClass):
         Get a generator of instances of this object.
 
         Args:
-            data:
-                A list of dict objects that match this class to be converted.
-            client:
-                An optional :class:`privacy.api_client.APIClient` used
-                for allowing api calls from the returned object(s).
+            data (list): Dict objects that match this class to be converted.
+            client (privacy.api_client.APIClient, optional): An APIClient used for allowing
+                api calls from the returned object(s).
 
         Returns:
-            A generator of :subclass:`privacy.schema.CustomBase`
+            generator: Subclasses of `privacy.schema.CustomBase`
         """
         for obj in data:
             yield cls(client=client, **obj)
@@ -62,16 +59,13 @@ class CustomBase(BaseModel, LoggingClass):
         Get a dict of instances of this object.
 
         Args:
-            data:
-                A list of dict objects that match this class to be converted.
-            path:
-                A list/path of string keys for getting the key used for each object.
-            client:
-                An optional :class:`privacy.api_client.APIClient` used
-                for allowing api calls from the returned object(s).
+            data (list): Dict objects that match this class to be converted.
+            path (list): A path of string keys for getting the key used for each object.
+            client (privacy.api_client.APIClient, optional): An APIClient used for allowing
+                api calls from the returned object(s).
 
         Returns:
-            A dict[string] = :subclass:`privacy.schema.CustomBase`
+            dict: Subclasses of `privacy.schema.CustomBase`.
         """
         result = {}
         for obj in data:
@@ -92,12 +86,9 @@ class FundingAccount(CustomBase):
     The funding account model.
 
     Attributes:
-        account_name:
-            The string account name identifying the source (can be digits of account number).
-        token:
-            The string global unique identifier for the account.
-        type:
-            The type of funding source. :enum:`privacy.schema.FundingAccountTypes`
+        account_name (str): The account name of the source (can be digits of account number).
+        token (str): The global unique identifier for the account.
+        type (privacy.schema.FundingAccountTypes): The type of funding source.
     """
     account_name: str
     token: str
@@ -132,28 +123,17 @@ class Card(CustomBase):
     The card model.
 
     Attributes:
-        cvv:
-            PREMIUM: The string three digit cvv code on the card.
-        funding:
-            The card's funding account. :class:`privacy.schema.FundingAccount`
-        exp_month
-            PREMIUM: The string expiry month of this card (format MM).
-        exp_year:
-            PREMIUM: The string expiry year of this card (format YYYY).
-        hostname:
-            The hostname of the card's locked merchant (empty if not applicable).
-        last_four:
-            The string last four digits of the card's number.
-        memo:
-            The string name of the card.
-        spend_limit:
-            The int (in pennies) limit for transaction authorisations with this card.
-        spend_limit_duration:
-            :enum:`privacy.schema.CardSpendLimitDurations`
-        token:
-            The string unique identifier of this card.
-        type:
-            :enum:`privacy.schema.CardTypes`
+        cvv (str, optional): PREMIUM The three digit cvv code on the card.
+        funding (privacy.schema.FundingAccount): The card's funding account.
+        exp_month (str, optional): PREMIUM The expiry month of this card (format MM).
+        exp_year (str, optional): PREMIUM The expiry year of this card (format YYYY).
+        hostname (str): The hostname of the card's locked merchant (empty if not applicable).
+        last_four (str): The last four digits of the card's number.
+        memo (str): The name of the card.
+        spend_limit (int): The limit for transaction authorisations with this card (in pennies).
+        spend_limit_duration (privacy.schema.CardSpendLimitDurations): The spend limit duration.
+        token (str): The unique identifier of this card.
+        type (privacy.schema.CardTypes): The card type.
     """
     cvv: typing.Optional[str]
     funding: FundingAccount
@@ -168,7 +148,6 @@ class Card(CustomBase):
     state: CardStates
     token: str
     type: CardTypes
-    test: typing.Optional[str]
 
     def update(
             self, state: CardStates = None, memo: str = None,
@@ -179,19 +158,14 @@ class Card(CustomBase):
         PREMIUM ENDPOINT - Modify an existing card.
 
         Args:
-            state:
-                An optional :enum:`privacy.schema.CardStates`
-            memo:
-                An optional string name for the card.
-            spend_limit:
-                An optional int amount (pennies).
-            spend_limit_duration:
-                An optional :enum:`privacy.schema.spend_limit_duration`]
-            api_key:
-                An optional string used for overriding authentication.
+            state (privacy.schema.CardStates, optional): The card state.
+            memo (str, optional): The name for the card.
+            spend_limit (int, optional): The card spend limit (in pennies).
+            spend_limit_duration (privacy.schema.CardSpendLimitDurations, optional): Spend limit duration.
+            api_key (str, optional): A key used for overriding authentication.
 
         Note:
-            Setting state to :enum:`privacy.schema.card_token`.CLOSED is
+            Setting state to `privacy.schema.CardSpendLimitDurations`.CLOSED is
             a final action that cannot be undone.
         """
         card = self.client.cards_modify(
@@ -209,18 +183,12 @@ class Merchant(CustomBase):
     The Merchant model.
 
     Attributes:
-        acceptor_id:
-            The string unique identify for this card acceptor.
-        city:
-            The string city of this card acceptor.
-        country:
-            The string country of this card acceptor.
-        descriptor:
-            The string description of this card acceptor.
-        mcc:
-            The string merchant category code.
-        state:
-            The string geographic state of this card acceptor.
+        acceptor_id (str): The unique identify for this card acceptor.
+        city (str): The city of this card acceptor.
+        country (str): The country of this card acceptor.
+        descriptor (str): The description of this card acceptor.
+        mcc (str): The merchant category code.
+        state (str): The geographic state of this card acceptor.
     """
     acceptor_id: str
     city: str
@@ -278,16 +246,11 @@ class Event(CustomBase):
     The Event model.
 
     Attributes:
-        amount:
-            The integer amount of the transaction event (pennies).
-        created:
-            :class:`datetime.datetime` of when this event was entered into the system.
-        result:
-            :enum:`privacy.schema.TransactionResults`
-        token:
-            The string globally unique identifier of the event.
-        type:
-            :enum:`privacy.schema.EventTypes`
+        amount (int): The amount of the transaction event (in pennies).
+        created (datetime.datetime): The datetime of when this event was entered into the system.
+        result (privacy.schema.TransactionResults): The transaction result.
+        token (str): The globally unique identifier of the event.
+        type (privacy.schema.EventTypes): The event type.
     """
     amount: int
     created: datetime  # TODO: convert to datetime object
@@ -304,26 +267,16 @@ class Transaction(CustomBase):
     The Transaction Model
 
     Attributes:
-        amount:
-            The int authorization  amount (in pennies) of the transaction.
-        card:
-            :class:`privacy.schema.Card`
-        created:
-            :class:`datetime.datetime` of when this transaction first occured.
-        events:
-            PREMIUM - :class:`privacy.schema.Event`
-        funding:
-            List[:class:`privacy.schema.FundingAccount]
-        merchant:
-            :class:`privacy.schema.Merchant`
-        result:
-            :enum:`privacy.schema.TransactionResults`
-        settled_amount:
-            The int amount (in pennies) of the transaction that has been settled (may change).
-        status:
-            :class:`privacy.schema.TransactionStatuses`
-        token:
-            The int globally unique identifier for this transaction.
+        amount (int): The authorization  amount of the transaction (in pennies).
+        card (privacy.schema.Card): The card tied to this transaction.
+        created (datetime.datetime): The datetime of when this transaction first occurred.
+        events (list[ privacy.schema.Event ]): PREMIUM the events that have modified this.
+        funding (list[ privacy.schema.FundingAccount ]): All the founding sources..
+        merchant (privacy.schema.Merchant): The merchant tied to this transation.
+        result (privacy.schema.TransactionResults): The result of this transaction.
+        settled_amount (int): The amount of that has been settled (in pennies) (may change).
+        status (privacy.schema.TransactionStatuses): The status of this transaction.
+        token (int): The globally unique identifier for this transaction.
     """
     amount: int
     card: Card
@@ -345,12 +298,9 @@ class EmbedRequest(CustomBase):
     The EmbedRequest model.
 
     Attributes:
-        token:
-            The globally unique identifier for the card to be displayed.
-        css:
-            A publicly available URI used for styling the hosted white-labeled iframe.
-        expiration:
-            OPTIONAL - The datetime for when the request should expire.
+        token (str): The globally unique identifier for the card to be displayed.
+        css (str): A publicly available URI used for styling the hosted white-labeled iframe.
+        expiration (datetime.datetime, optional): The datetime for when the request should expire.
     """
     token: str
     css: str

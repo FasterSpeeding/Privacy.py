@@ -12,7 +12,7 @@ class LoggingClass:
         Used for automatically getting a class' logger.
 
         Returns:
-            :class:`logging.Logger`
+            `logging.Logger`: The Logger class.
         """
         if not hasattr(self, "_log"):
             self._log = logging.getLogger(self.__class__.__name__)

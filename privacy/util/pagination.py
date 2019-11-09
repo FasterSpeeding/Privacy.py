@@ -4,10 +4,7 @@ from typing import Any, Iterable
 
 
 class Direction(Enum):
-    """
-    An enum of the directions used by
-    :class:`privacy.util.pagination.PaginatedResponse`
-    """
+    """An enum of the directions used by `privacy.util.pagination.PaginatedResponse`"""
     UP = 0
     DOWN = 1
 
@@ -17,24 +14,16 @@ class PaginatedResponse:
     Used for automatically iterating through paginated api endpoints.
 
     Attributes:
-        client:
-            :class:`privacy.api_client.APIClient`
-        direction:
-            :enum:`privacy.util.pagination.Direction`
-        limit:
-            An int value used for limiting how many objects this will return
-            while being iterated through with None being treated as no limit.
-        pymodel:
-            A :subclass:`privacy.schema.CustomBase` dataclass this wraps
+        client (privacy.api_client.APIClient): The client used for api calls.
+        direction (privacy.util.pagination.Direction): The direction for crawling through pages.
+        limit (int, optional): The amount of object(s) that this will
+            return during iteration (unset for unlimited).
+        pymodel (privacy.schema.CustomBase): The dataclass this wraps
             and will be returning objects as during iteration.
-        total_entries:
-            An analytical int taken grabbed retrieved data.
-        total_pages:
-            An analytical int grabbed from retrieved data.
-        args:
-            Args passed through to :class:`requests.session.request`.
-        kwargs:
-            kwargs passed through to :class:`requests.session.request`.
+        total_entries (int): The total entries according to retrieved data.
+        total_pages (int): The total pages according to retrieved data.
+        args: Args passed through to `requests.session.request`.
+        kwargs: Kwargs passed through to `requests.session.request`.
     """
     total_entries = None
     total_pages = None
@@ -46,22 +35,16 @@ class PaginatedResponse:
             limit: int = None, **kwargs: Any) -> None:
         """
         Args:
-            pymodel:
-                A :subclass:`privacy.schema.CustomBase` dataclass
-                that this will be returning objects as during iteration.
-            client:
-                :class:`privacy.http_client.APIClient` used
-                for making requests to crawl through pages.
-            *args:
-                Args passed through to :class:`requests.session.request`.
-            direction:
-                An optional :enum:`privacy.util.pagination.Direction`
-                used for specifying the direction of the page iteration.
-            limit:
-                An optional int used to limit how many objects
-                this will return while being iterated through.
-            **kwargs:
-                Kwargs passed through to :class:`requests.session.request`.
+            pymodel (privacy.schema.CustomBase): The dataclass that this will be
+                returning objects as during iteration.
+            client (privacy.api_client.APIClient): The api client used for making
+                requests to crawl through pages.
+            *args: Args passed through to `requests.session.request`.
+            direction (privacy.util.pagination.Direction, optional): The direction that this
+                will crawl through pages.
+            limit (int, optional): Used to limit how many object(s) this
+                will return while being iterated through.
+            **kwargs: Kwargs passed through to `requests.session.request`.
         """
         self.client = client
         self.direction = direction or Direction.UP
@@ -108,14 +91,13 @@ class PaginatedResponse:
     def get_cached_list(self, overwrite: bool = None) -> list:
         """
         Used to automatically get a list of the set pymodel while following
-        the set iteration limit and direction, and caching the list for future list.
+        the set iteration limit and direction while caching the list for future list.
 
         Args:
-            overwrite:
-                An optional bool used to automatically overwrite any previously cached lists.
+            overwrite (bool, optional): Used to automatically overwrite a previously cached list.
 
         Returns:
-             A list of instances of the set pymodel.
+             list: Instances of the set pymodel.
         """
         data = getattr(self, "_list", None)
 
@@ -161,8 +143,7 @@ class PaginatedResponse:
         Used to reset the iteration and delete any stored data.
 
         Args:
-            page:
-                An optional int used to specify the starting page.
+            page (int, optional): Used to specify the starting page.
         """
         self._page = page
         self.get_starting_point()

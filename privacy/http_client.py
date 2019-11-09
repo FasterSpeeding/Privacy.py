@@ -1,4 +1,4 @@
-"""The client used for handling the raw requests."""
+"""The client used for handling raw requests."""
 from platform import python_version
 from time import sleep
 import random
@@ -17,7 +17,7 @@ class APIException(Exception):
     def __init__(self, response: models.Response) -> None:
         """
         Args:
-            :class:`requests.models.Response`
+            response (requests.models.Response): The response object.
         """
         try:
             error_msg = response.json()["message"]
@@ -55,12 +55,9 @@ class HTTPClient(LoggingClass):
     The client used for handling api requests and errors.
 
     Attributes:
-        BASE_URL:
-            The string url used as the base for all api calls.
-        backoff:
-            A bool that toggles retries and exponential backoff.
-        session:
-            :class:`requests.session`
+        BASE_URL (string): The url used as the base for all api calls.
+        backoff (bool): Toggles retries and exponential backoff.
+        session (requests.session): The request session used for api calls.
     """
     BASE_URL = "https://api.privacy.com/v1/"
 
@@ -69,14 +66,10 @@ class HTTPClient(LoggingClass):
             backoff: bool = True) -> None:
         """
         Args:
-            api_key:
-                An optional string used for authentication.
-            debug:
-                An optional bool used for toggling the debug api.
-            backoff:
-                An optional bool used for disabling automatic
-                backoff and retry on status codes 5xx or 429.
-                Raises :class:`privacy.http_client.APIException` if False.
+            api_key (string, optional): The key used for authentication.
+            debug (bool, optional): Used for toggling the debug api.
+            backoff (bool, optional): Used to disable automatic retry on status codes 5xx or 429.
+                Client will raise `privacy.http_client.APIException` instead of retrying if False.
         """
         self.backoff = backoff
         self.session = session()
@@ -97,18 +90,13 @@ class HTTPClient(LoggingClass):
             retries: int = 0, **kwargs) -> models.Response:
         """
         Args:
-            route:
-                The route for this call from :class:`privacy.http_client.Routes`
-            url_kwargs:
-                An optional dict of the kwargs to
-                be merged with the target url.
-            retries:
-                An optional int used for handling exponential back off.
-            kwargs:
-                The kwargs to be passed to :class:`requests.session.request`
+            route (privacy.http_client.Routes): The route for this call.
+            url_kwargs (dict, optional): The kwargs to be merged with the target url.
+            retries (int, optional): Used for handling exponential back off.
+            kwargs: The kwargs to be passed to `requests.session.request`.
 
         Returns:
-            :class:`requests.models.response`
+            `requests.models.response`: The response object.
         """
         method, url = route
 
@@ -145,10 +133,9 @@ class HTTPClient(LoggingClass):
         Generate a time to backoff for before retrying a request.
 
         Args:
-            retries:
-                An int of how many times the request has been retried.
+            retries (int): How many times the request has been retried.
 
         Returns:
-            An exponentially random float used for backoff.
+            float: An exponentially random float used for backoff.
         """
         return (2 ** retries) + random.randint(0, 1000) / 1000
