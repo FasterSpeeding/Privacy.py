@@ -14,3 +14,12 @@ install:
 script:
   - pytest
   - flake8
+
+deploy:
+  provider: pypi
+  user: "__token__"
+  password: "$PYPI_SECRET"
+  server: "https://test.pypi.org/manage/account/"
+  on:
+    branch: master
+    tags: true
