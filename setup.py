@@ -1,9 +1,6 @@
 from setuptools import setup, find_packages
 
 
-from privacy.util import GIT, VERSION
-
-
 with open("requirements.txt") as f:
     REQUIREMENTS = f.readlines()
 
@@ -14,8 +11,8 @@ with open("README.md") as f:
 setup(
     name="privacy.py",
     author="FasterSpeeding",
-    url=GIT,
-    version=VERSION,
+    url="https://github.com/FasterSpeeding/privacy.py",
+    version="",
     packages=find_packages(),
     license="BSD",
     description="A Python lib for Privacy.com",
