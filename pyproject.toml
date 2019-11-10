@@ -1,3 +1,7 @@
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.masonry.api"
+
 [tool.poetry]
 name = "privacy.py"
 version = "0.0.0"
@@ -21,7 +25,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.9"
+python = ">=3.6,<3.9"
 pydantic = "1.0"
 requests = "2.22.0"
 
