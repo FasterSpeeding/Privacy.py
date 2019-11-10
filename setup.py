@@ -19,6 +19,7 @@ setup(
     long_description=README,
     include_package_data=True,
     install_requires=REQUIREMENTS,
+    setup_requires=['pytest-runner'],
     test_suite="pytest",
     tests_require=[
         "pytest==5.2.2",
