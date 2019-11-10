@@ -62,7 +62,7 @@ class APIClient(LoggingClass):
         if not api_key:
             raise TypeError("Api authentication key is unset.")
 
-        return api_key.replace("api-key", "")
+        return api_key.replace("api-key ", "")
 
     def cards_list(
             self, token: str = None, page: int = None, page_size: int = None,
