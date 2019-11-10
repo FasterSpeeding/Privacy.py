@@ -97,7 +97,10 @@ class PaginatedResponse:
 
         if data is None or overwrite:
             data = self._list = list(self)
-
+#FAIL FLAKE 9
+        def xd(dsosodds=None,d=None):
+            print(dsosodds)
+            print(d)
         return data
 
     def crawl_data(self) -> None:
