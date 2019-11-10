@@ -1,5 +1,4 @@
 [build-system]
-name = "privacy"
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
@@ -23,6 +22,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Utilities",
+]
+packages = [
+    { include = "privacy" }
 ]
 
 [tool.poetry.dependencies]
