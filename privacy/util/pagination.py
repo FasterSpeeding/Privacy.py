@@ -14,25 +14,20 @@ class PaginatedResponse:
     Used for automatically iterating through paginated api endpoints.
 
     Attributes:
+        args: Args passed through to `requests.session.request`.
         client (privacy.api_client.APIClient): The client used for api calls.
         direction (privacy.util.pagination.Direction): The direction for crawling through pages.
-        limit (int, optional): The amount of object(s) that this will
-            return during iteration (unset for unlimited).
-        pymodel (privacy.schema.CustomBase): The dataclass this wraps
-            and will be returning objects as during iteration.
-        total_entries (int): The total entries according to retrieved data.
-        total_pages (int): The total pages according to retrieved data.
-        args: Args passed through to `requests.session.request`.
         kwargs: Kwargs passed through to `requests.session.request`.
+        limit (int, optional): The amount of object(s) that this will return during iteration (unset for unlimited).
+        metadata (dict, optional): Used to store extra data returned by the api (`total_entries` and `total_pages`).
+        pymodel (privacy.schema.CustomBase): The dataclass this wraps and will be returning objects as during iteration.
     """
-    total_entries = None
-    total_pages = None
+    direction = None
+    limit = None
+    metadata = None
     _list = None
 
-    def __init__(
-            self, pymodel, client,
-            *args, direction: Direction = None,
-            limit: int = None, **kwargs: Any) -> None:
+    def __init__(self, pymodel, client, *args, **kwargs: Any) -> None:
         """
         Args:
             pymodel (privacy.schema.CustomBase): The dataclass that this will be
@@ -40,18 +35,12 @@ class PaginatedResponse:
             client (privacy.api_client.APIClient): The api client used for making
                 requests to crawl through pages.
             *args: Args passed through to `requests.session.request`.
-            direction (privacy.util.pagination.Direction, optional): The direction that this
-                will crawl through pages.
-            limit (int, optional): Used to limit how many object(s) this
-                will return while being iterated through.
             **kwargs: Kwargs passed through to `requests.session.request`.
 
         Raises:
             TypeError: If invalid pagination direction is supplied.
         """
         self.client = client
-        self.direction = direction or Direction.UP
-        self.limit = limit
         self.pymodel = pymodel
 
         # Handle request args and kwargs
@@ -62,10 +51,12 @@ class PaginatedResponse:
         self.args = args
         self.kwargs = kwargs
 
-        self.get_starting_point()
         self._buffer = []
 
     def __iter__(self) -> Iterable:
+        if self.direction is None:
+            self.set_direction()
+
         return self
 
     def __next__(self) -> Any:
@@ -113,25 +104,25 @@ class PaginatedResponse:
         """Used to get the next page's data and store it in _buffer."""
         self.shift_page_num()
         self.kwargs["params"]["page"] = self._page
-        data = self.client.api(*self.args, **self.kwargs).json()
-        if not data.get("data"):
+        response = self.client.api(*self.args, **self.kwargs).json()
+        data = response.pop("data", None)
+        if not data:
             return
 
         # Store metadata
-        self._page = data.pop("page")
-        self.total_entries = data.pop("total_entries", None)
-        self.total_pages = data.pop("total_pages", None)
+        self._page = response.pop("page")
+        self.metadata = response
 
         # Convert and store results.
-        self._buffer.extend(self.pymodel.autoiter(data["data"], self.client))
+        self._buffer.extend(self.pymodel.autoiter(data, self.client))
 
     def get_starting_point(self) -> None:
         """Used to get the starting page number, making an api call if required."""
         if self.direction == Direction.UP:
             if self._page is None:
-                self._page = 1
-
-            self._page -= 1
+                self._page = 0
+            elif self._page > 0:
+                self._page -= 1
         elif self.direction == Direction.DOWN:
             if self._page is None:
                 data = self.client.api(*self.args, **self.kwargs).json()
@@ -151,6 +142,21 @@ class PaginatedResponse:
         self._page = page
         self.get_starting_point()
         self._buffer.clear()
+
+    def set_direction(self, direction: Direction = Direction.UP, page: int = None) -> None:
+        """
+        Used to set the direction that this will crawl through pages during iteration.
+
+        Args:
+            direction (privacy.util.pagination.Direction, optional): The direction that this
+                will crawl through pages, defaults to `privacy.util.pagination.Direction.UP`.
+            page (int, optional): Used to set the page for this to start on during iteration.
+        """
+        self.direction = direction
+        if page is not None:
+            self._page = page
+
+        self.get_starting_point()
 
     def shift_page_num(self) -> None:
         """Move the page number by one based on self.direction."""
