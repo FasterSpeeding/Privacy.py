@@ -23,7 +23,7 @@ setup(
     test_suite="pytest",
     tests_require=[
         "pytest==5.2.2",
-        "pytest-flake8==1.0.4",
+        "flake8==3.7.9",
     ],
     classifiers=[
         "Development Status :: 1 - Planning",
