@@ -1,5 +1,5 @@
-"""Test LoggingClass and it's inheritability."""
-from privacy.util.logging import *
+"""Tests for privacy.util.logging"""
+from privacy.util.logging import LoggingClass, logging
 
 
 def test_mock_logger():

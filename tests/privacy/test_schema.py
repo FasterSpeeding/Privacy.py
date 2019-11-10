@@ -1,1 +1,0 @@
-from privacy.schema import *
