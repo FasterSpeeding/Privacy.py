@@ -258,7 +258,7 @@ class Event(CustomBase):
         type (privacy.schema.EventTypes): The event type.
     """
     amount: int
-    created: datetime  # TODO: convert to datetime object
+    created: datetime
     result: TransactionResults  # TODO: Check this
     token: str
     type: EventTypes

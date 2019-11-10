@@ -9,7 +9,6 @@ from privacy.schema import (
 )
 from privacy.util.functional import b64_encode, hmac_sign, optional
 from privacy.util.logging import LoggingClass
-from privacy.util.pagination import Direction
 
 
 def auth_header(api_key=None):
@@ -66,8 +65,7 @@ class APIClient(LoggingClass):
 
     def cards_list(
             self, token: str = None, page: int = None, page_size: int = None,
-            begin: str = None, end: str = None, direction: Direction = None,
-            limit: int = None, api_key: str = None) -> Iterable[Card]:
+            begin: str = None, end: str = None, api_key: str = None) -> Iterable[Card]:
         """
         Get an iterator of the cards owned by this account.
 
@@ -77,8 +75,6 @@ class APIClient(LoggingClass):
             page_size (str, optional): Used to specify the page size.
             begin (str, optional): The start date of the results as a date string (`YYYY-MM-DD`).
             end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
-            direction (privacy.util.pagination.Direction, optional): The direction of iteration.
-            limit (int, optional): Limit how many objects the iterator will return during iteration.
             api_key (str, optional): Used to override authentication.
 
         Returns:
@@ -92,8 +88,6 @@ class APIClient(LoggingClass):
             self,
             Routes.CARDS_LIST,
             headers=auth_header(api_key),
-            direction=direction,
-            limit=limit,
             params=optional(
                 card_token=token,
                 page=page,
@@ -106,8 +100,7 @@ class APIClient(LoggingClass):
     def transactions_list(
             self, approval_status: str = "all", token: str = None,
             page: int = None, page_size: int = None, begin: str = None,
-            end: str = None, direction: Direction = None, limit: int = None,
-            api_key: str = None) -> Iterable[Transaction]:
+            end: str = None, api_key: str = None) -> Iterable[Transaction]:
         """
         Get an iterator of the transactions under this account.
 
@@ -119,8 +112,6 @@ class APIClient(LoggingClass):
             page_size (int, optional): Used to specify the page size.
             begin (str, optional): The starting date of the results as a date string (`YYYY-MM-DD`).
             end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
-            direction (privacy.util.pagination.Direction, optional): The direction of iteration.
-            limit (int, optional): Limit how many objects the iterator will return during iteration.
             api_key (str, optional): Used to override authentication.
 
         Returns:
@@ -135,8 +126,6 @@ class APIClient(LoggingClass):
             Routes.TRANSACTIONS_LIST,
             dict(approval_status=approval_status),
             headers=auth_header(api_key),
-            direction=direction,
-            limit=limit,
             params=optional(
                 transaction_token=token,
                 page=page,
