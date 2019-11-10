@@ -1,155 +1,151 @@
-from typing import Iterable
-import json
+"""The client used for handling raw requests."""
+from platform import python_version
+from time import sleep
+import random
+import typing
 
-from privacy.http_base import HTTPBaseClient, Routes
-from privacy.schema import (
-    Card, Transaction, CardSpendLimitDurations, CardStates, CardTypes,
-)
-from privacy.util.functional import (
-    b64_encode, JsonEncoder, hmac_sign, optional,
-)
+
+from requests import models, session, __version__ as req_version
+
+
+from privacy.util import GIT, VERSION
 from privacy.util.logging import LoggingClass
-from privacy.util.pagination import Direction
 
 
-def auth_header(api_key=None):
-    return optional(Authorization=api_key)
+class APIException(Exception):
+    """Exception used for handling invalid status codes."""
+    def __init__(self, response: models.Response) -> None:
+        """
+        Args:
+            response (requests.models.Response): The response object.
+        """
+        try:
+            error_msg = response.json()["message"]
+        except (KeyError, ValueError):
+            error_msg = None
+
+        self.code = response.status_code
+        self.msg = error_msg
+        self.raw = response.content
+        super(APIException, self).__init__(
+            f"{response.status_code}: {error_msg}"
+        )
+
+
+class Routes:
+    """The endpoints exposed by Privacy.com's public api"""
+    CARDS_LIST = ("GET", "card")
+    TRANSACTIONS_LIST = ("GET", "transaction/{approval_status}")
+
+    # PREMIUM
+    CARDS_CREATE = ("POST", "card")
+    CARDS_MODIFY = ("PUT", "card")
+    HOSTED_CARD_UI_GET = ("GET", "embed/card")
+
+    # SANDBOX
+    SIMULATE = "simulate/"
+    SIMULATE_AUTH = ("POST", SIMULATE + "authorize")
+    SIMULATE_VOID = ("POST", SIMULATE + "void")
+    SIMULATE_CLEARING = ("POST", SIMULATE + "clearing")
+    SIMULATE_RETURN = ("POST", SIMULATE + "return")
 
 
 class HTTPClient(LoggingClass):
+    """
+    The client used for handling api requests and errors.
+
+    Attributes:
+        BASE_URL (string): The url used as the base for all api calls.
+        backoff (bool): Toggles retries and exponential backoff.
+        session (requests.session): The request session used for api calls.
+    """
+    BASE_URL = "https://api.privacy.com/v1/"
+
     def __init__(
-            self, api_key: str = None,
-            backoff: bool = True, debug: bool = False) -> None:
-        self.api_key = api_key
-        self.api = HTTPBaseClient(api_key=api_key, backoff=backoff, debug=debug)
+            self, api_key: str = None, debug: bool = False,
+            backoff: bool = True) -> None:
+        """
+        Args:
+            api_key (string, optional): The key used for authentication.
+            debug (bool, optional): Used for toggling the debug api.
+            backoff (bool, optional): Used to disable automatic retry on status codes 5xx or 429.
+                Client will raise `privacy.http_client.APIException` instead of retrying if False.
+        """
+        self.backoff = backoff
+        self.session = session()
+        self.session.headers.update({
+            "User-Agent": (f"Privacy.py (github {GIT} {VERSION}) "
+                           f"Python/{python_version()} requests/{req_version}")
+        })
 
-    def update_api_key(self, api_key: str = None) -> None:
-        self.api_key = api_key
-        self.api.session.headers["Authorization"] = api_key
+        if api_key:
+            self.session.headers["Authorization"] = "api-key " + api_key
 
-    def cards_list(
-            self, token: str = None, page: int = None, page_size: int = None,
-            begin: str = None, end: str = None, direction: Direction = None,
-            api_key: str = None) -> Iterable[Card]:
-        return Card.paginate(
-            self,
-            Routes.CARDS_LIST,
-            headers=auth_header(api_key),
-            direction=direction,
-            params=optional(
-                card_token=token,
-                page=page,
-                page_size=page_size,
-                begin=begin,
-                end=end,
-            )
-        )
+        if debug:
+            self.BASE_URL = "https://sandbox.privacy.com/v1/"
 
-    def transactions_list(
-            self, approval_status: str = "all", token: str = None,
-            page: int = None, page_size: int = None, begin: str = None,
-            end: str = None, direction: Direction = None,
-            api_key: str = None) -> Iterable[Transaction]:
-        return Transaction.paginate(
-            self,
-            Routes.TRANSACTIONS_LIST,
-            dict(approval_status=approval_status),
-            headers=auth_header(api_key),
-            direction=direction,
-            params=optional(
-                transaction_token=token,
-                page=page,
-                page_size=page_size,
-                begin=begin,
-                end=end,
-            )
-        )
+    def __call__(
+            self, route: typing.List[str],
+            url_kwargs: typing.Dict[str, str] = None,
+            retries: int = 0, **kwargs) -> models.Response:
+        """
+        Args:
+            route (privacy.http_client.Routes): The route for this call.
+            url_kwargs (dict, optional): The kwargs to be merged with the target url.
+            retries (int, optional): Used for handling exponential back off.
+            kwargs: The kwargs to be passed to `requests.session.request`.
 
-    # Premium
-    def cards_create(
-            self, card_type: CardTypes, name: str = None,
-            spend_limit: CardSpendLimitDurations = None,
-            spend_limit_duration: int = None, api_key=None) -> Card:
-        request = self.api(
-            Routes.CARDS_CREATE,
-            headers=auth_header(api_key),
-            json=optional(
-                type=card_type,
-                name=name,
-                spend_limit=spend_limit,
-                spend_limit_duration=spend_limit_duration,
-            )
-        )
-        return Card(client=self.api, **request.json())
+        Returns:
+            response (requests.models.response): The response objects.
 
-    def cards_modify(
-            self, card_token: str, state: CardStates = None,
-            memo: str = None, spend_limit: int = None,
-            spend_limit_duration: int = None, api_key: str = None) -> Card:
-        request = self.api(
-            Routes.CARDS_MODIFY,
-            headers=auth_header(api_key),
-            json=optional(
-                card_token=card_token,
-                state=state,
-                memo=memo,
-                spend_limit=spend_limit,
-                spend_limit_duration=spend_limit_duration,
-            )
-        )
-        return Card(client=self.api, **request.json())
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
+        """
+        # Make sure headers is pre-set for upcoming checks.
+        if "headers" not in kwargs:
+            kwargs["headers"] = {}
 
-    def hoisted_card_ui_get(
-            self, embed_request: dict, api_key: str = None) -> str:
-        embed_request_json = json.dumps(embed_request, cls=JsonEncoder)
-        embed_request = b64_encode(bytes(embed_request_json, "utf-8"))
-        embed_request_hmac = hmac_sign(api_key or self.api_key, embed_request)
+        # Ensure that passed auth key is formatted correctly or api key is already set in sesssion headers.
+        if "Authorization" in kwargs["headers"]:
+            kwargs["headers"]["Authorization"] = "api-key " + kwargs["headers"]["Authorization"]
+        elif "Authorization" not in self.session.headers:
+            raise TypeError("authentication key is unset.")
 
-        return self.api(
-            Routes.HOSTED_CARD_UI_GET,
-            headers=auth_header(api_key),
-            json=dict(embed_request=embed_request, hmac=embed_request_hmac),
-        ).content
+        # Ensure the custom json encoder is used for pydantic objects.
+        if hasattr(kwargs.get("json"), "json"):
+            kwargs["data"] = kwargs.pop("json").json()
+            kwargs["headers"]["content-type"] = "application/json"
 
-    # Sandbox
-    def auth_simulate(
-            self, descriptor: str, pan: str,
-            amount: int, api_key: str = None) -> dict:
-        return self.api(
-            Routes.SIMULATE_AUTH,
-            headers=auth_header(api_key),
-            json=dict(
-                descriptor=descriptor,
-                pan=pan,
-                amount=amount,
-            )
-        ).json()
+        method, url = route
+        url = self.BASE_URL + url.format(**url_kwargs or {})
+        request = self.session.request(method, url, **kwargs)
 
-    def void_simulate(
-            self, token: str, amount: int, api_key: str = None) -> dict:
-        return self.api(
-            Routes.SIMULATE_VOID,
-            headers=auth_header(api_key),
-            json=dict(token=token, amount=amount),
-        ).json()
+        if request.status_code < 400:
+            return request
 
-    def clearing_simulate(
-            self, token: str, amount: int, api_key: str = None) -> dict:
-        return self.api(
-            Routes.SIMULATE_CLEARING,
-            headers=auth_header(api_key),
-            json=dict(token=token, amount=amount),
-        ).json()
+        if (not self.backoff or retries == 4 or
+                request.status_code < 500 and request.status_code != 429):
+            raise APIException(request)
+        # TODO: handle other 429s and proper limit
 
-    def return_simulate(
-            self, descriptor: str, pan: str,
-            amount: int, api_key: str = None) -> dict:
-        return self.api(
-            Routes.SIMULATE_RETURN,
-            headers=auth_header(api_key),
-            json=dict(
-                descriptor=descriptor,
-                pan=pan,
-                amount=amount,
-            )
-        ).json()
+        backoff = self.exponential_backoff(retries)
+        retries += 1
+        self.log.warning(
+            "Request failed with %s, retrying in %s seconds.",
+            request.status_code, round(backoff, 4))
+        sleep(backoff)
+        return self(route, url_kwargs, retries, **kwargs)
+
+    @staticmethod
+    def exponential_backoff(retries: int) -> float:
+        """
+        Generate a time to backoff for before retrying a request.
+
+        Args:
+            retries (int): How many times the request has been retried.
+
+        Returns:
+            float: An exponentially random float used for backoff.
+        """
+        return (2 ** retries) + random.randint(0, 1000) / 1000
