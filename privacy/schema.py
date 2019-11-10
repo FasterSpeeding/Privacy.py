@@ -90,7 +90,8 @@ class FundingAccount(CustomBase):
         token (str): The global unique identifier for the account.
         type (privacy.schema.FundingAccountTypes): The type of funding source.
     """
-    account_name: str
+    account_name: typing.Optional[str]  # TODO: This is undocumented behaviour where unset in possible new obj.
+    amount: typing.Optional[int]  # TODO: this is an undocumented attributed and may justify a new obj.
     token: str
     type: FundingAccountTypes
 
@@ -139,7 +140,7 @@ class Card(CustomBase):
     funding: FundingAccount
     exp_month: typing.Optional[str]
     exp_year: typing.Optional[str]
-    hostname: str  # TODO: empty if not applicable?
+    hostname: str
     last_four: str
     memo: str
     pan: str
@@ -308,7 +309,7 @@ class EmbedRequest(CustomBase):
     """
     token: str
     css: str
-    expiration: typing.Optional[datetime]  # ISO 8601
+    expiration: typing.Optional[datetime]
 
     def __repr__(self):
         return f"<EmbedRequest({self.token})>"
