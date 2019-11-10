@@ -22,7 +22,7 @@ setup(
     setup_requires=['pytest-runner'],
     test_suite="pytest",
     tests_require=[
-        "pytest==5.2.2"
+        "pytest==5.2.2",
     ],
     classifiers=[
         "Development Status :: 1 - Planning",
