@@ -1,2 +1,1 @@
-pydantic==1.0
-requests==2.22.0
+poetry==0.12.17
