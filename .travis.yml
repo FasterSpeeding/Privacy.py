@@ -10,16 +10,17 @@ python:
 install:
   - pip install -U -r requirements.txt
   - poetry install
+  - poetry config repositories.target $PYPI_URL
 
 script:
   - pytest
   - flake8
 
 deploy:
-  provider: pypi
-  user: "__token__"
-  password: $PYPI_SECRET
-  server: "https://test.pypi.org/manage/account/"
+  provider: script
+  script: poetry publish -r target -u __token__ -p $PYPI_SECRET --build
+  password:
+    secure: $PYPI_SECRET
   on:
     branch: master
     tags: true

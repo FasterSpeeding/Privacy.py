@@ -7,7 +7,7 @@ name = "privacy.py"
 version = "0.0.0"
 description = "A Python lib for Privacy.com"
 authors = ["Faster Speeding"]
-license = "BSD 3-Clause"
+license = "BSD-3-Clause"
 readme = "README.md"
 classifiers = [
     "Development Status :: 1 - Planning",

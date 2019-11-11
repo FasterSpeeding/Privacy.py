@@ -26,6 +26,7 @@ class PaginatedResponse:
     limit = None
     metadata = None
     _list = None
+    _page = None
 
     def __init__(self, pymodel, client, *args, **kwargs: Any) -> None:
         """
