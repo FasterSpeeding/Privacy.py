@@ -10,17 +10,17 @@ python:
 install:
   - pip install -U -r requirements.txt
   - poetry install
-  - poetry config repositories.target $PYPI_URL
+#  - poetry config repositories.target $PYPI_URL
 
 script:
   - pytest
   - flake8
 
-deploy:
-  provider: script
-  script: poetry publish -r target -u __token__ -p $PYPI_SECRET --build
-  password:
-    secure: $PYPI_SECRET
-  on:
-    branch: master
-    tags: true
+#deploy:
+#  provider: script
+#  script: poetry publish -r target -u __token__ -p $PYPI_SECRET --build
+#  password:
+#    secure: $PYPI_SECRET
+#  on:
+#    branch: master
+#    tags: true
