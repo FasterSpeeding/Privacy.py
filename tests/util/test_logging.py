@@ -3,7 +3,7 @@ from privacy.util.logging import LoggingClass, logging
 
 
 def test_mock_logger():
-    class mock_logger(LoggingClass):
+    class MockLogger(LoggingClass):
         pass
 
-    assert isinstance(mock_logger().log, logging.Logger)
+    assert isinstance(MockLogger().log, logging.Logger)

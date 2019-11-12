@@ -61,19 +61,20 @@ class PaginatedResponse:
         return self
 
     def __next__(self) -> Any:
-        if self.limit == 0:
+        if self.limit:
+            self.limit -= 1
+        elif self.limit == 0:
             self.reset()
             raise StopIteration()
 
         if not self._buffer:
             self.crawl_data()
-            if not self._buffer:
-                self.reset()
-                raise StopIteration()
 
-        if self.limit:
-            self.limit -= 1
-        return self._buffer.pop()
+        try:
+            return self._buffer.pop()
+        except IndexError:
+            self.reset()
+            raise StopIteration()
 
     def __repr__(self) -> str:
         return f"<PaginatedResponse({self.pymodel.__name__})>"
