@@ -99,8 +99,8 @@ class APIClient(LoggingClass):
 
     def transactions_list(
             self, approval_status: str = "all", token: str = None,
-            page: int = None, page_size: int = None, begin: str = None,
-            end: str = None, api_key: str = None) -> Iterable[Transaction]:
+            card_token: str = None, page: int = None, page_size: int = None,
+            begin: str = None, end: str = None, api_key: str = None) -> Iterable[Transaction]:
         """
         Get an iterator of the transactions under this account.
 
@@ -108,6 +108,7 @@ class APIClient(LoggingClass):
             approval_status (str, optional): One of [`approvals`, `declines`, `all`] used to
                 get transactions with a specific status.
             token (str, optional): Used to get a specific transaction.
+            card_token (str, optional): Used to get the transactions associated with a specific card.
             page (int, optional): Used to specify the start page.
             page_size (int, optional): Used to specify the page size.
             begin (str, optional): The starting date of the results as a date string (`YYYY-MM-DD`).
@@ -128,6 +129,7 @@ class APIClient(LoggingClass):
             headers=auth_header(api_key),
             params=optional(
                 transaction_token=token,
+                card_token=card_token,
                 page=page,
                 page_size=page_size,
                 begin=begin,

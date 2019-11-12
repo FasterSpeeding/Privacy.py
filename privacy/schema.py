@@ -179,6 +179,34 @@ class Card(CustomBase):
         )
         self.__init__(**card.json())
 
+    def get_transactions(
+            self, approval_status: str = "all", token: str = None,
+            page: int = None, page_size: int = None, begin: str = None,
+            end: str = None, api_key: str = None):
+        """
+        Get an iterator of the transactions under this account.
+
+        Args:
+            approval_status (str, optional): One of [`approvals`, `declines`, `all`] used to
+                get transactions with a specific status.
+            token (str, optional): Used to get a specific transaction.
+            page (int, optional): Used to specify the start page.
+            page_size (int, optional): Used to specify the page size.
+            begin (str, optional): The starting date of the results as a date string (`YYYY-MM-DD`).
+            end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
+            api_key (str, optional): Used to override authentication.
+
+        Returns:
+            `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.Transaction` ]
+
+        Raises:
+            APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
+            TypeError: If api authentication key is unset.
+        """
+        return self.client.transactions_list(
+            approval_status, token, self.token,
+            page, page_size, begin, end, api_key)
+
     def __repr__(self):
         return f"<Card({self.memo}:{self.token})>"
 
