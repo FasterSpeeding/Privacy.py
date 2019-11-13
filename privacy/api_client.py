@@ -173,7 +173,7 @@ class APIClient(LoggingClass):
         return Card(client=self.api, **request.json())
 
     def cards_modify(
-            self, card_token: str, state: CardStates = None,
+            self, token: str, state: CardStates = None,
             memo: str = None, spend_limit: int = None,
             spend_limit_duration: CardSpendLimitDurations = None,
             api_key: str = None) -> Card:
@@ -181,7 +181,7 @@ class APIClient(LoggingClass):
         PREMIUM ENDPOINT - Modify an existing card.
 
         Args:
-            card_token (str): The unique token of the card being modified.
+            token (str): The unique token of the card being modified.
             state (privacy.schema.CardStates, optional): The new card state.
             memo (str, optional): The name card name.
             spend_limit (int, optional): The new card spend limit (in pennies).
@@ -202,7 +202,7 @@ class APIClient(LoggingClass):
             Routes.CARDS_MODIFY,
             headers=auth_header(api_key),
             json=optional(
-                card_token=card_token,
+                card_token=token,
                 state=state,
                 memo=memo,
                 spend_limit=spend_limit,
