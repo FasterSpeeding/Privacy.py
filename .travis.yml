@@ -15,12 +15,9 @@ script:
   - poetry run pytest
   - poetry run flake8
 
-before_deploy:
-  - poetry config http-basic.pypi __token__ $PYPI_SECRET
-
 deploy:
   provider: script
-  script: poetry publish --build
+  script: poetry publish --build -u __token__ -p $PYPI_SECRET
   on:
     tags: true
     condition: "$TRAVIS_PYTHON_VERSION == 3.8"
