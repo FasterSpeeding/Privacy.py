@@ -12,8 +12,8 @@ install:
   - poetry install
 
 script:
-  - pytest
-  - flake8
+  - poetry run pytest
+  - poetry run flake8
 
 before_deploy:
   - poetry config http-basic.pypi __token__ $PYPI_SECRET
