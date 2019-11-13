@@ -16,8 +16,7 @@ script:
   - flake8
 
 before_deploy:
-  - echo "$PYPI_URL"
-  - echo $PYPI_URL
+  - export
   - poetry config repositories.pypi $PYPI_URL
   - poetry config http-basic.pypi __token__ $PYPI_SECRET
   - poetry build
