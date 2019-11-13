@@ -9,7 +9,7 @@ pip install Privacy.py
 
 ## Usage
 
-The privacy api has 3 groups of endpoints: basic endpoints, premium endpoints and sandboxed endpoints. 
+Privacy's api has 3 groups of endpoints (which are differentiated by access): basic endpoints, premium endpoints and sandboxed endpoints. 
 
 ### Basic endpoints
 These endpoints can be access by any account. 
@@ -72,7 +72,7 @@ client.hoisted_card_ui_get(
 
 ### Sandboxed endponts
 
-The endpoints can only be accessed on Privacy's seperate sandboxed api which can be enabled by passing through `debug=True` to `privacy.Client.__init__`. 
+The endpoints can only be accessed on Privacy's seperate sandboxed api which can be enabled by passing `debug=True` through to `privacy.Client.__init__`. 
 
 * Any changes made on these endpoints won't effect Privacy's actual service as these exist purely for debugging purposes.
 
