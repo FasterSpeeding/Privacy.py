@@ -16,13 +16,11 @@ script:
   - flake8
 
 before_deploy:
-  - poetry config repositories.pypi $PYPI_URL
   - poetry config http-basic.pypi __token__ $PYPI_SECRET
 
 deploy:
   provider: script
   script: poetry publish -r pypi --build
   on:
-    branch: dev
     tags: true
     condition: "$TRAVIS_PYTHON_VERSION == 3.8"
