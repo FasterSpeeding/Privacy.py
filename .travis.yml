@@ -16,14 +16,12 @@ script:
   - flake8
 
 before_deploy:
-  - export
   - poetry config repositories.pypi $PYPI_URL
   - poetry config http-basic.pypi __token__ $PYPI_SECRET
-  - poetry build
 
 deploy:
   provider: script
-  script: poetry publish -r pypi
+  script: poetry publish -r pypi --build
   on:
     branch: dev
     tags: true
