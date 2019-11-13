@@ -15,11 +15,14 @@ script:
   - pytest
   - flake8
 
+before_deploy:
+  - poetry config repositories.pypi $PYPI_URL __token__ -p $PYPI_SECRET
+  - poetry build
+
 deploy:
   provider: script
-  script: 
-    - poetry config repositories.pypi $PYPI_URL
-    - poetry publish -r pypi -u __token__ -p $PYPI_SECRET --build
+  script: poetry publish
   on:
     branch: dev
     tags: true
+    condition: "$TRAVIS_PYTHON_VERSION == 3.7"
