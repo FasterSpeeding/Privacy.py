@@ -25,15 +25,15 @@ class APIClient(LoggingClass):
     """
     def __init__(
             self, api_key: str = None,
-            backoff: bool = True, debug: bool = False) -> None:
+            backoff: bool = True, sandboxed: bool = False) -> None:
         """
         Args:
             api_key (str, optional): Used to set the default authorisation.
-            debug (bool, optional): Used to enable the debug api.
+            sandboxed (bool, optional): Used to enable Privacy's sandboxed api.
             backoff (bool, optional): Used to disable toggle retry on status codes 5xx or 429.
                 Will raises `privacy.http_client.APIException` instead of retrying if False.
         """
-        self.api = HTTPClient(api_key=api_key, backoff=backoff, debug=debug)
+        self.api = HTTPClient(api_key=api_key, backoff=backoff, sandboxed=sandboxed)
 
     def update_api_key(self, api_key: str = None) -> None:
         """

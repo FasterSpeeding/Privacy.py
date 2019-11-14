@@ -62,12 +62,12 @@ class HTTPClient(LoggingClass):
     BASE_URL = "https://api.privacy.com/v1/"
 
     def __init__(
-            self, api_key: str = None, debug: bool = False,
+            self, api_key: str = None, sandboxed: bool = False,
             backoff: bool = True) -> None:
         """
         Args:
             api_key (string, optional): The key used for authentication.
-            debug (bool, optional): Used for toggling the debug api.
+            sandboxed (bool, optional): Used for switching to Privacy's sandboxed api.
             backoff (bool, optional): Used to disable automatic retry on status codes 5xx or 429.
                 Client will raise `privacy.http_client.APIException` instead of retrying if False.
         """
@@ -81,7 +81,7 @@ class HTTPClient(LoggingClass):
         if api_key:
             self.session.headers["Authorization"] = "api-key " + api_key
 
-        if debug:
+        if sandboxed:
             self.BASE_URL = "https://sandbox.privacy.com/v1/"
 
     def __call__(

@@ -9,9 +9,11 @@ pip install Privacy.py
 
 ## Usage
 
-Privacy's api has 3 groups of endpoints (which are differentiated by access): basic endpoints, premium endpoints and sandboxed endpoints. 
+Privacy's api has 3 groups of endpoints (which are differentiated by access):
+basic endpoints, premium endpoints and sandboxed endpoints. 
 
 ### Basic endpoints
+
 These endpoints can be access by any account. 
 
 ```python
@@ -62,7 +64,7 @@ card = client.cards_modify(
     spend_limit_duration=privacy.schema.CardSpendLimitDurations,  # The optional new spend limit duration.
 )
 # With this being mirrored by the follow function on the Card object.
-card.update(*, **)  # This function's args mirror client.cards_modify without the ability to passthrough a token.
+card.update(*, **)  # This function's args mirror client.cards_modify without the ability to pass-through a token.
 
 # Used to get a hosted card UI.
 client.hoisted_card_ui_get(
@@ -72,7 +74,7 @@ client.hoisted_card_ui_get(
 
 ### Sandboxed endponts
 
-The endpoints can only be accessed on Privacy's seperate sandboxed api which can be enabled by passing `debug=True` through to `privacy.Client.__init__`. 
+The endpoints can only be accessed on Privacy's separate sandboxed api (switched to by passing `sandboxed=True` through to `privacy.Client.__init__`).
 
 * Any changes made on these endpoints won't effect Privacy's actual service as these exist purely for debugging purposes.
 
