@@ -11,7 +11,7 @@ from privacy.util.functional import b64_encode, hmac_sign, optional
 from privacy.util.logging import LoggingClass
 
 
-def auth_header(api_key=None):
+def auth_header(api_key=None) -> dict:
     """Optionally overwrite authorisation header for a single request."""
     return optional(Authorization=api_key)
 
@@ -47,7 +47,7 @@ class APIClient(LoggingClass):
         else:
             self.api.session.headers.pop("Authorization", None)
 
-    def get_api_key(self):
+    def get_api_key(self) -> str:
         """
         Get the set api key.
 
@@ -270,7 +270,7 @@ class APIClient(LoggingClass):
         ).json()
 
     def void_simulate(
-            self, token: str, amount: int, api_key: str = None):
+            self, token: str, amount: int, api_key: str = None) -> None:
         """
         SANDBOX ENDPOINT - Void an existing, uncleared/pending authorisation.
 
@@ -291,7 +291,7 @@ class APIClient(LoggingClass):
         )
 
     def clearing_simulate(
-            self, token: str, amount: int, api_key: str = None):
+            self, token: str, amount: int, api_key: str = None) -> None:
         """
         SANDBOX ENDPOINT - Clear an existing authorisation.
 
