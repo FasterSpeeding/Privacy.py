@@ -2,7 +2,7 @@
 A Python wrapper for the [Privacy API](https://developer.privacy.com/).
 
 ## Installation
-To install Privacy.py with pip, simply run this:
+To install Privacy.py into your environment, simply run this:
 ```
 pip install Privacy.py
 ```
