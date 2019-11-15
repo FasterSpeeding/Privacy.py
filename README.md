@@ -40,7 +40,7 @@ iter_transactions = client.transactions_list(
     end="YYYY-MM-DD",  # Used to get transactions that were created before the specified date.
 )
 # With this being mirrored by the following function on the Card object.
-iter_transactions = Card.get_transactions(*, **)  # Where card_token is taken from card this is being called from.
+iter_transactions = Card.get_transactions(*, **)  # Where card_token is from card this is attached to.
 ```
 
 ### Premium endpoints. 
@@ -52,20 +52,20 @@ These endpoints can only be accessed by premium accounts.
 card = client.cards_create(
     card_type=privacy.schema.CardTypes,  # The card type.
     memo=str,  # An optional card name.
-    spend_limit=int,  # An optional spend limit in pennies.
-    spend_limit_duration=privacy.schema.CardSpendLimitDurations,  # Optionally used to specify how long the spend limit lasts.
+    spend_limit=int,  # An optional spend limit (in pennies).
+    spend_limit_duration=privacy.schema.CardSpendLimitDurations,  # Optional, used to set how long the spend limit lasts.
 )
 
 # Used to modify a card based on it's token and optional args.
 card = client.cards_modify(
     token=str,  # The token of the card being modified.
-    state=privacy.schema.CardStates,  # The optional new state of the card (cannot be reversed when set to `CLOSED`).
-    memo=str,  # The optional new name of the card.
-    spend_limit=int,  # The optional new spend limit for the card (in pennies).
-    spend_limit_duration=privacy.schema.CardSpendLimitDurations,  # The optional new spend limit duration.
+    state=privacy.schema.CardStates,  # Used to change the state of the card (cannot be reversed when set to `CLOSED`).
+    memo=str,  # Used to change the name of the card.
+    spend_limit=int,  # Used to change spend limit for the card (in pennies).
+    spend_limit_duration=privacy.schema.CardSpendLimitDurations,  # Used to change how long the spend limit lasts.
 )
 # With this being mirrored by the following function on the Card object.
-card.update(*, **)  # Where the token used is from the card this is being called from.
+card.update(*, **)  # Where the token used is from the card this is attached to.
 
 # Used to get a hosted card UI.
 client.hoisted_card_ui_get(
