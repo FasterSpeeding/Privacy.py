@@ -1,5 +1,6 @@
 """The client used for handling raw requests."""
 from platform import python_version
+from json.decoder import JSONDecodeError
 from time import sleep
 import random
 import typing
@@ -14,14 +15,14 @@ from privacy.util.logging import LoggingClass
 
 class APIException(Exception):
     """Exception used for handling invalid status codes."""
-    def __init__(self, response: models.Response) -> None:
+    def __init__(self, response: models.Response):
         """
         Args:
             response (requests.models.Response): The response object.
         """
         try:
             error_msg = response.json()["message"]
-        except (KeyError, ValueError):
+        except (KeyError, JSONDecodeError, ValueError):
             error_msg = None
 
         self.code = response.status_code
@@ -63,7 +64,7 @@ class HTTPClient(LoggingClass):
 
     def __init__(
             self, api_key: str = None, sandboxed: bool = False,
-            backoff: bool = True) -> None:
+            backoff: bool = True):
         """
         Args:
             api_key (string, optional): The key used for authentication.
@@ -110,7 +111,7 @@ class HTTPClient(LoggingClass):
         if "Authorization" in kwargs["headers"]:
             kwargs["headers"]["Authorization"] = "api-key " + kwargs["headers"]["Authorization"]
         elif "Authorization" not in self.session.headers:
-            raise TypeError("authentication key is unset.")
+            raise TypeError("Authentication key is unset.")
 
         # Ensure the custom json encoder is used for pydantic objects.
         if hasattr(kwargs.get("json"), "json"):
