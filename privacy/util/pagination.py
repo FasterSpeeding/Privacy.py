@@ -20,7 +20,7 @@ class PaginatedResponse:
         kwargs: Kwargs passed through to `requests.session.request`.
         limit (int, optional): The amount of object(s) that this will return during iteration (unset for unlimited).
         metadata (dict, optional): Used to store extra data returned by the api (`total_entries` and `total_pages`).
-        pymodel (privacy.schema.base.CustomBase): The dataclass this wraps and return objects as during iteration.
+        pymodel (privacy.schema.base.CustomBase): The dataclass this wraps and returns objects as during iteration.
     """
     direction = None
     limit = None

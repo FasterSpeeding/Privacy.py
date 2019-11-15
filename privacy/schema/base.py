@@ -38,7 +38,7 @@ class CustomBase(BaseModel, LoggingClass):
         return PaginatedResponse(cls, *args, **kwargs)
 
     @classmethod
-    def autoiter(cls, data: list, client=None) -> typing.Generator:
+    def autoiter(cls, data: list, client=None) -> typing.Iterable:
         """
         Get a generator of instances of this object.
 
@@ -48,10 +48,9 @@ class CustomBase(BaseModel, LoggingClass):
                 api calls from the returned object(s).
 
         Returns:
-            generator: Subclasses of `privacy.schema.CustomBase`
+            generator: Subclasses of `privacy.schema.base.CustomBase`
         """
-        for obj in data:
-            yield cls(client=client, **obj)
+        return map(lambda obj: cls(client=client, **obj), data)
 
     @classmethod
     def autodict(cls, data: list, path: list, client=None) -> dict:

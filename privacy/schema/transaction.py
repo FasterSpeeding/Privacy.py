@@ -31,7 +31,7 @@ class Transaction(CustomBase):
         events (list[ privacy.schema.event.Event ], premium): the events that have modified this.
         funding (list[ privacy.schema.funding.Account ]): All the founding sources.
         merchant (privacy.schema.merchant.Merchant): The merchant tied to this transaction.
-        result (privacy.schema.transaction.Results): The result of this transaction.
+        result (privacy.schema.event.Results): The result of this transaction.
         settled_amount (int): The amount of that has been settled (in pennies) (may change).
         status (privacy.schema.transaction.Statuses): The status of this transaction.
         token (int): The globally unique identifier for this transaction.
