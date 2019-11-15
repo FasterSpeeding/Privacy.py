@@ -6,7 +6,7 @@ from enum import Enum
 from privacy.schema.base import CustomBase
 
 
-class Results(Enum):
+class Result(Enum):
     """An enum of the transaction results."""
     APPROVED = "APPROVED"
     CARD_PAUSED = "CARD_PAUSED"
@@ -28,7 +28,7 @@ class Results(Enum):
     FRAUD_ADVICE = "FRAUD_ADVICE"
 
 
-class Types(Enum):
+class Type(Enum):
     """An enum of the event types"""
     AUTHORIZATION = "AUTHORIZATION"
     AUTHORIZATION_ADVICE = "AUTHORIZATION_ADVICE"
@@ -44,15 +44,15 @@ class Event(CustomBase):
     Attributes:
         amount (int): The amount of the transaction event (in pennies).
         created (datetime.datetime): The datetime of when this event was entered into the system.
-        result (privacy.schema.event.Results): The transaction result.
+        result (privacy.schema.event.Result): The transaction result.
         token (str): The globally unique identifier of the event.
-        type (privacy.schema.event.Types): The event type.
+        type (privacy.schema.event.Type): The event type.
     """
     amount: int
     created: datetime
-    result: Results  # TODO: Check this
+    result: Result  # TODO: Check this
     token: str
-    type: Types
+    type: Type
 
     def __repr__(self):
         return f"<Event({self.token}:{self.type})>"

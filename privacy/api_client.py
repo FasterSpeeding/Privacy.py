@@ -3,7 +3,7 @@ from typing import Iterable
 
 
 from privacy.http_client import HTTPClient, Routes
-from privacy.schema.card import Card, SpendLimitDurations, States, Types
+from privacy.schema.card import Card, SpendLimitDuration, State, Type
 from privacy.schema.transaction import Transaction
 from privacy.schema.embed import EmbedRequest
 from privacy.util.functional import b64_encode, hmac_sign, optional
@@ -138,18 +138,18 @@ class APIClient(LoggingClass):
 
     # Premium
     def cards_create(
-            self, card_type: Types, memo: str = None,
+            self, card_type: Type, memo: str = None,
             spend_limit: int = None,
-            spend_limit_duration: SpendLimitDurations = None,
+            spend_limit_duration: SpendLimitDuration = None,
             api_key=None) -> Card:
         """
         PREMIUM ENDPOINT - Create a card.
 
         Args:
-            card_type (privacy.schema.card.Types): The card type.
+            card_type (privacy.schema.card.Type): The card type.
             memo (str, optional): The card's name.
             spend_limit (int, optional): The spending limit of the card (in pennies).
-            spend_limit_duration (privacy.schema.card.SpendLimitDurations, optional): The spend limit duration.
+            spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): The spend limit duration.
             api_key (str, optional): Used to override authentication.
 
         Returns:
@@ -172,19 +172,19 @@ class APIClient(LoggingClass):
         return Card(client=self.api, **request.json())
 
     def cards_modify(
-            self, token: str, state: States = None,
+            self, token: str, state: State = None,
             memo: str = None, spend_limit: int = None,
-            spend_limit_duration: SpendLimitDurations = None,
+            spend_limit_duration: SpendLimitDuration = None,
             api_key: str = None) -> Card:
         """
         PREMIUM ENDPOINT - Modify an existing card.
 
         Args:
             token (str): The unique token of the card being modified.
-            state (privacy.schema.card.States, optional): The new card state.
+            state (privacy.schema.card.State, optional): The new card state.
             memo (str, optional): The name card name.
             spend_limit (int, optional): The new card spend limit (in pennies).
-            spend_limit_duration (privacy.schema.card.SpendLimitDurations, optional): The spend limit duration.
+            spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): The spend limit duration.
             api_key (str, optional): Used to override authentication.
 
         Returns:
@@ -195,7 +195,7 @@ class APIClient(LoggingClass):
             TypeError: If api authentication key is unset.
 
         Note:
-            Setting state to `privacy.schema.card.States.CLOSED` cannot be undone.
+            Setting state to `privacy.schema.card.State.CLOSED` cannot be undone.
         """
         request = self.api(
             Routes.CARDS_MODIFY,

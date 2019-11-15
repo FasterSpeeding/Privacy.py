@@ -6,12 +6,12 @@ import typing
 
 from privacy.schema.base import CustomBase
 from privacy.schema.card import Card
-from privacy.schema.event import Event, Results
+from privacy.schema.event import Event, Result
 from privacy.schema.funding import Account
 from privacy.schema.merchant import Merchant
 
 
-class Statuses(Enum):
+class Status(Enum):
     """An enum of the transaction statuses"""
     PENDING = "PENDING"
     VOIDED = "VOIDED"
@@ -31,9 +31,9 @@ class Transaction(CustomBase):
         events (list[ privacy.schema.event.Event ], premium): the events that have modified this.
         funding (list[ privacy.schema.funding.Account ]): All the founding sources.
         merchant (privacy.schema.merchant.Merchant): The merchant tied to this transaction.
-        result (privacy.schema.event.Results): The result of this transaction.
+        result (privacy.schema.event.Result): The result of this transaction.
         settled_amount (int): The amount of that has been settled (in pennies) (may change).
-        status (privacy.schema.transaction.Statuses): The status of this transaction.
+        status (privacy.schema.transaction.Status): The status of this transaction.
         token (int): The globally unique identifier for this transaction.
     """
     amount: int
@@ -42,9 +42,9 @@ class Transaction(CustomBase):
     events: typing.List[Event]
     funding: typing.List[Account]
     merchant: Merchant
-    result: Results
+    result: Result
     settled_amount: int
-    status: Statuses
+    status: Status
     token: str
 
     def __repr__(self):

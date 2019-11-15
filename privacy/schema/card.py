@@ -7,22 +7,22 @@ from privacy.schema.base import CustomBase
 from privacy.schema.funding import Account
 
 
-class Types(Enum):
-    """An enum of the Card Types."""
+class Type(Enum):
+    """An enum of the Card Type."""
     SINGLE_USE = "SINGLE_USE"
     MERCHANT_LOCKED = "MERCHANT_LOCKED"
     UNLOCKED = "UNLOCKED"
     PHYSICAL = "PHYSICAL"
 
 
-class States(Enum):
-    """An enum of the Card States."""
+class State(Enum):
+    """An enum of the Card State."""
     OPEN = "OPEN"
     PAUSED = "PAUSED"
     CLOSED = "CLOSED"
 
 
-class SpendLimitDurations(Enum):
+class SpendLimitDuration(Enum):
     """An enum of the Card Spend Limit Durations."""
     TRANSACTION = "TRANSACTION"
     MONTHLY = "MONTHLY"
@@ -43,9 +43,9 @@ class Card(CustomBase):
         last_four (str): The last four digits of the card's number.
         memo (str): The name of the card.
         spend_limit (int): The limit for transaction authorisations with this card (in pennies).
-        spend_limit_duration (privacy.schema.card.SpendLimitDurations): The spend limit duration.
+        spend_limit_duration (privacy.schema.card.SpendLimitDuration): The spend limit duration.
         token (str): The unique identifier of this card.
-        type (privacy.schema.card.Types): The card type.
+        type (privacy.schema.card.Type): The card type.
     """
     cvv: typing.Optional[str]
     funding: Account
@@ -56,28 +56,28 @@ class Card(CustomBase):
     memo: str
     pan: str
     spend_limit: int
-    spend_limit_duration: SpendLimitDurations
-    state: States
+    spend_limit_duration: SpendLimitDuration
+    state: State
     token: str
-    type: Types
+    type: Type
 
     def update(
-            self, state: States = None, memo: str = None,
+            self, state: State = None, memo: str = None,
             spend_limit: int = None,
-            spend_limit_duration: SpendLimitDurations = None,
+            spend_limit_duration: SpendLimitDuration = None,
             api_key: str = None) -> None:
         """
         PREMIUM ENDPOINT - Modify an existing card.
 
         Args:
-            state (privacy.schema.card.States, optional): The card state.
+            state (privacy.schema.card.State, optional): The card state.
             memo (str, optional): The name for the card.
             spend_limit (int, optional): The card spend limit (in pennies).
-            spend_limit_duration (privacy.schema.card.SpendLimitDurations, optional): Spend limit duration.
+            spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): Spend limit duration.
             api_key (str, optional): A key used for overriding authentication.
 
         Note:
-            Setting state to `privacy.schema.card.States.CLOSED` is
+            Setting state to `privacy.schema.card.State.CLOSED` is
             a final action that cannot be undone.
 
         Raises:
