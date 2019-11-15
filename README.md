@@ -50,10 +50,10 @@ These endpoints can only be accessed by premium accounts.
 ```python
 # Used to create a card.
 card = client.cards_create(
-    card_type=privacy.schema.CardTypes,  # The card type.
+    card_type=privacy.schema.card.Types,  # The card type.
     memo=str,  # An optional card name.
     spend_limit=int,  # An optional spend limit (in pennies).
-    spend_limit_duration=privacy.schema.CardSpendLimitDurations,  # Optional, used to set how long the spend limit lasts.
+    spend_limit_duration=privacy.schema.card.SpendLimitDurations,  # Optional, used to set how long the spend limit lasts.
 )
 
 # Used to modify a card based on it's token and optional args.
@@ -62,14 +62,14 @@ card = client.cards_modify(
     state=privacy.schema.CardStates,  # Used to change the state of the card (cannot be reversed when set to `CLOSED`).
     memo=str,  # Used to change the name of the card.
     spend_limit=int,  # Used to change spend limit for the card (in pennies).
-    spend_limit_duration=privacy.schema.CardSpendLimitDurations,  # Used to change how long the spend limit lasts.
+    spend_limit_duration=privacy.schema.card.SpendLimitDurations,  # Used to change how long the spend limit lasts.
 )
 # With this being mirrored by the following function on the Card object.
 card.update(*, **)  # Where the token used is from the card this is attached to.
 
 # Used to get a hosted card UI.
 client.hoisted_card_ui_get(
-    embed_request=privacy.schema.EmbedRequest,  # An embed request object.
+    embed_request=privacy.schema.embed.EmbedRequest,  # An embed request object.
 )
 ```
 
