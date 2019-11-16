@@ -3,7 +3,9 @@ from datetime import datetime
 from enum import Enum
 import typing
 
+
 from pydantic import BaseModel
+
 
 from privacy.util.functional import get_dict_path
 from privacy.util.logging import LoggingClass
