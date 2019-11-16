@@ -88,7 +88,7 @@ class Card(CustomBase):
             self.token, state, memo, spend_limit,
             spend_limit_duration, api_key,
         )
-        self.__init__(**card.json())
+        self.__init__(**card.dict())
 
     def get_transactions(
             self, approval_status: str = "all", token: str = None,
