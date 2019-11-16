@@ -20,7 +20,7 @@ class PaginatedResponse:
         kwargs: Kwargs passed through to `requests.session.request`.
         limit (int, optional): The amount of object(s) that this will return during iteration (unset for unlimited).
         metadata (dict, optional): Used to store extra data returned by the api (`total_entries` and `total_pages`).
-        pymodel (privacy.schema.CustomBase): The dataclass this wraps and will be returning objects as during iteration.
+        pymodel (privacy.schema.base.CustomBase): The dataclass this wraps and returns objects as during iteration.
     """
     direction = None
     limit = None
@@ -31,7 +31,7 @@ class PaginatedResponse:
     def __init__(self, pymodel, client, *args, **kwargs: Any) -> None:
         """
         Args:
-            pymodel (privacy.schema.CustomBase): The dataclass that this will be
+            pymodel (privacy.schema.base.CustomBase): The dataclass that this will be
                 returning objects as during iteration.
             client (privacy.api_client.APIClient): The api client used for making
                 requests to crawl through pages.

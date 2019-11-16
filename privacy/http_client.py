@@ -1,5 +1,6 @@
 """The client used for handling raw requests."""
 from platform import python_version
+from json.decoder import JSONDecodeError
 from time import sleep
 import random
 import typing
@@ -14,15 +15,17 @@ from privacy.util.logging import LoggingClass
 
 class APIException(Exception):
     """Exception used for handling invalid status codes."""
-    def __init__(self, response: models.Response) -> None:
+    def __init__(self, response: models.Response):
         """
         Args:
             response (requests.models.Response): The response object.
         """
-        try:
-            error_msg = response.json()["message"]
-        except (KeyError, ValueError):
-            error_msg = None
+        error_msg = None
+        if response.headers.get("Content-Type") == "application/json":
+            try:
+                error_msg = response.json()["message"]
+            except (KeyError, JSONDecodeError):
+                pass
 
         self.code = response.status_code
         self.msg = error_msg
@@ -60,14 +63,15 @@ class HTTPClient(LoggingClass):
         session (requests.session): The request session used for api calls.
     """
     BASE_URL = "https://api.privacy.com/v1/"
+    RETRIES = 5
 
     def __init__(
-            self, api_key: str = None, debug: bool = False,
-            backoff: bool = True) -> None:
+            self, api_key: str = None, sandboxed: bool = False,
+            backoff: bool = True):
         """
         Args:
             api_key (string, optional): The key used for authentication.
-            debug (bool, optional): Used for toggling the debug api.
+            sandboxed (bool, optional): Used for switching to Privacy's sandboxed api.
             backoff (bool, optional): Used to disable automatic retry on status codes 5xx or 429.
                 Client will raise `privacy.http_client.APIException` instead of retrying if False.
         """
@@ -81,7 +85,7 @@ class HTTPClient(LoggingClass):
         if api_key:
             self.session.headers["Authorization"] = "api-key " + api_key
 
-        if debug:
+        if sandboxed:
             self.BASE_URL = "https://sandbox.privacy.com/v1/"
 
     def __call__(
@@ -110,7 +114,7 @@ class HTTPClient(LoggingClass):
         if "Authorization" in kwargs["headers"]:
             kwargs["headers"]["Authorization"] = "api-key " + kwargs["headers"]["Authorization"]
         elif "Authorization" not in self.session.headers:
-            raise TypeError("authentication key is unset.")
+            raise TypeError("Authentication key is unset.")
 
         # Ensure the custom json encoder is used for pydantic objects.
         if hasattr(kwargs.get("json"), "json"):
@@ -119,21 +123,24 @@ class HTTPClient(LoggingClass):
 
         method, url = route
         url = self.BASE_URL + url.format(**url_kwargs or {})
-        request = self.session.request(method, url, **kwargs)
+        response = self.session.request(method, url, **kwargs)
 
-        if request.status_code < 400:
-            return request
+        if response.status_code < 400:
+            return response
 
-        if (not self.backoff or retries == 4 or
-                request.status_code < 500 and request.status_code != 429):
-            raise APIException(request)
-        # TODO: handle other 429s and proper limit
+        # Raise general api errors.
+        if response.status_code < 500 and response.status_code != 429:
+            raise APIException(response)
+
+        # Handle backoff on 429s and 5xx.
+        if not self.backoff or retries == self.RETRIES - 1 or not self.should_backoff(response):
+            raise APIException(response)
 
         backoff = self.exponential_backoff(retries)
         retries += 1
         self.log.warning(
             "Request failed with %s, retrying in %s seconds.",
-            request.status_code, round(backoff, 4))
+            response.status_code, round(backoff, 4))
         sleep(backoff)
         return self(route, url_kwargs, retries, **kwargs)
 
@@ -149,3 +156,28 @@ class HTTPClient(LoggingClass):
             float: An exponentially random float used for backoff.
         """
         return (2 ** retries) + random.randint(0, 1000) / 1000
+
+    @staticmethod
+    def should_backoff(response: models.Response):
+        """
+        Work out if the client should retry after a 5xx or 429.
+
+        Args:
+             response (requests.models.Response): The response object.
+        """
+        # Note right now, if something inbetween us and the api returns a 429, this will raise an exception.
+        # Always retry on a 5xx.
+        if response.status_code >= 500:
+            return True
+
+        # Don't try to decode json content if content-type is not json.
+        if response.headers.get("Content-Type") != "application/json":
+            return False
+
+        # Attempt to get error message and if not present, give up.
+        try:
+            msg = response.json()["message"]
+        except (KeyError, JSONDecodeError):
+            return False
+
+        return msg == "Rate limited, too many requests per second"
