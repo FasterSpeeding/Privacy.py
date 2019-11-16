@@ -4,13 +4,13 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "privacy.py"
-version = "0.0.0"
+version = "2019.11.16.dev1"
 description = "A Python lib for Privacy.com"
 authors = ["FasterSpeeding <Luke@lmbyrne.dev>"]
 license = "BSD-3-Clause"
 readme = "README.md"
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 2 - Pre-Alpha",
     "License :: OSI Approved :: BSD License",
     "Intended Audience :: Developers",
     "Natural Language :: English",
