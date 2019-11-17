@@ -28,8 +28,8 @@ class Transaction(CustomBase):
         amount (int): The authorization  amount of the transaction (in pennies).
         card (privacy.schema.card.Card): The card tied to this transaction.
         created (datetime.datetime): The datetime of when this transaction first occurred.
-        events (list[ privacy.schema.event.Event ], premium): the events that have modified this.
-        funding (list[ privacy.schema.funding.Account ]): All the founding sources.
+        events (tuple[ privacy.schema.event.Event ], premium): the events that have modified this.
+        funding (tuple[ privacy.schema.funding.Account ]): All the founding sources.
         merchant (privacy.schema.merchant.Merchant): The merchant tied to this transaction.
         result (privacy.schema.event.Result): The result of this transaction.
         settled_amount (int): The amount of that has been settled (in pennies) (may change).
