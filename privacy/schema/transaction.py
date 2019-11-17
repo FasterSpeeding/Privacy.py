@@ -39,8 +39,8 @@ class Transaction(CustomBase):
     amount: int
     card: Card
     created: datetime
-    events: typing.List[Event]
-    funding: typing.List[Account]
+    events: typing.Tuple[Event]
+    funding: typing.Tuple[Account]
     merchant: Merchant
     result: Result
     settled_amount: int
