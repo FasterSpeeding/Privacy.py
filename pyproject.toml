@@ -32,6 +32,7 @@ packages = [
 python = ">=3.6,<3.9"
 pydantic = "1.0"
 requests = "2.22.0"
+responder = "v2.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.4"
