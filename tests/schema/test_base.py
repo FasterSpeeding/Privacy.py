@@ -1,5 +1,5 @@
 """Tests for privacy.schema.base"""
-from datetime import datetime
+from datetime import datetime, timezone
 import typing
 
 
@@ -40,7 +40,7 @@ class TestModel:
         assert MockModel.dict() == {
             "testing": "hi there",
             "i_int": 55,
-            "date": datetime.fromisoformat("2019-11-21T19:58:53+00:00"),
+            "date": datetime.fromtimestamp(1574366333, timezone.utc),
             "optional": None,
         }
 
