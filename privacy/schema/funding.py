@@ -26,3 +26,6 @@ class Account(CustomBase):
     amount: typing.Optional[int]  # TODO: this is an undocumented attributed and may justify a new obj.
     token: str
     type: Type
+
+
+__all__ = ["Type", "Account"]

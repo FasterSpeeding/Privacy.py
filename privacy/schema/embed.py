@@ -21,3 +21,6 @@ class EmbedRequest(CustomBase):
 
     def __repr__(self):
         return f"<EmbedRequest({self.token})>"
+
+
+__all__ = ["EmbedRequest"]

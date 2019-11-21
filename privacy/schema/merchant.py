@@ -23,3 +23,6 @@ class Merchant(CustomBase):
 
     def __repr__(self):
         return f"<Merchant({self.acceptor_id})>"
+
+
+__all__ = ["Merchant"]
