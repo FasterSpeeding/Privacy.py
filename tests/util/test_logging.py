@@ -1,9 +1,9 @@
 """Tests for privacy.util.logging"""
-from privacy.util.logging import LoggingClass, logging
+from privacy.util import logging
 
 
 def test_mock_logger():
-    class MockLogger(LoggingClass):
+    class MockLogger(logging.LoggingClass):
         pass
 
-    assert isinstance(MockLogger().log, logging.Logger)
+    assert isinstance(MockLogger().log, logging.logging.Logger)

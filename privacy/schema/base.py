@@ -7,7 +7,7 @@ import typing
 from pydantic import BaseModel
 
 
-from privacy.util.functional import get_dict_path
+from privacy.util.functional import get_attr_path
 from privacy.util.logging import LoggingClass
 from privacy.util.pagination import PaginatedResponse
 
@@ -61,7 +61,7 @@ class CustomBase(BaseModel, LoggingClass):
 
         Args:
             data (list): Dict objects that match this class to be converted.
-            path (list): A path of string keys for getting the key used for each object.
+            path (list): A path of string attributes for getting the key used for each object.
             client (privacy.api_client.APIClient, optional): An APIClient used for allowing
                 api calls from the returned object(s).
 
@@ -69,7 +69,8 @@ class CustomBase(BaseModel, LoggingClass):
             dict: Subclasses of `privacy.schema.base.CustomBase`.
         """
         result = {}
-        for obj in data:
-            result[get_dict_path(obj, path)] = cls(client=client, **obj)
+        for dict_obj in data:
+            obj = cls(client=client, **dict_obj)
+            result[get_attr_path(obj, path)] = obj
 
         return result

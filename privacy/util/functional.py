@@ -18,19 +18,19 @@ def b64_encode(data: bytes) -> str:
     return base64.b64encode(data).decode("utf-8")
 
 
-def get_dict_path(data: dict, path: List[str]) -> Any:
+def get_attr_path(data: dict, path: List[str]) -> Any:
     """
     Used to get a value in a dict based on a path.
 
     Args:
         data (dict): A dict of data to be searched.
-        path (list): An ordered list of string keys to be used for searching through the dict.
+        path (list): An ordered list of string attrs to be used for searching through the object.
 
     Returns:
-        Any: The resultant value from the dict.
+        Any: The resultant value from the object(s).
     """
-    for key in path:
-        data = data[key]
+    for attr in path:
+        data = getattr(data, attr)
 
     return data
 
