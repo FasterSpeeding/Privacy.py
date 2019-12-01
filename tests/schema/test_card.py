@@ -30,8 +30,7 @@ def mock_card_payload():
 
 @pytest.mark.model()
 class TestCard:
-    @staticmethod
-    def test_model(mock_card_payload):
+    def test_model(self, mock_card_payload):
         card_obj = card.Card(**mock_card_payload)
         assert card_obj.cvv == "032"
         assert card_obj.funding.account_name == "Major Park"
@@ -46,10 +45,10 @@ class TestCard:
         assert card_obj.type is card.Type.SINGLE_USE
         assert card_obj.memo == ""
 
-    @staticmethod
-    def test_update():
+    @pytest.mark.skip(reason="Not Implemented")
+    def test_update(self):
         ...
 
-    @staticmethod
-    def test_get_transactions():
+    @pytest.mark.skip(reason="Not Implemented")
+    def test_get_transactions(self):
         ...
