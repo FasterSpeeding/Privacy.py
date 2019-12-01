@@ -65,25 +65,21 @@ class HTTPClient(LoggingClass):
     BASE_URL = "https://api.privacy.com/v1/"
     RETRIES = 5
 
-    def __init__(
-            self, api_key: str = None, sandboxed: bool = False,
-            backoff: bool = True):
+    def __init__(self, api_key: str, backoff: bool = True, sandboxed: bool = False):
         """
         Args:
-            api_key (string, optional): The key used for authentication.
-            sandboxed (bool, optional): Used for switching to Privacy's sandboxed api.
+            api_key (string): The key used for authentication.
             backoff (bool, optional): Used to disable automatic retry on status codes 5xx or 429.
                 Client will raise `privacy.http_client.APIException` instead of retrying if False.
+            sandboxed (bool, optional): Used for switching to Privacy's sandboxed api.
         """
         self.backoff = backoff
         self.session = session()
         self.session.headers.update({
+            "Authorization": "api-key " + api_key,
             "User-Agent": (f"Privacy.py (github {GIT} {VERSION}) "
                            f"Python/{python_version()} requests/{req_version}")
         })
-
-        if api_key:
-            self.session.headers["Authorization"] = "api-key " + api_key
 
         if sandboxed:
             self.BASE_URL = "https://sandbox.privacy.com/v1/"
@@ -104,17 +100,10 @@ class HTTPClient(LoggingClass):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         # Make sure headers is pre-set for upcoming checks.
         if "headers" not in kwargs:
             kwargs["headers"] = {}
-
-        # Ensure that passed auth key is formatted correctly or api key is already set in sesssion headers.
-        if "Authorization" in kwargs["headers"]:
-            kwargs["headers"]["Authorization"] = "api-key " + kwargs["headers"]["Authorization"]
-        elif "Authorization" not in self.session.headers:
-            raise TypeError("Authentication key is unset.")
 
         # Ensure the custom json encoder is used for pydantic objects.
         if hasattr(kwargs.get("json"), "json"):

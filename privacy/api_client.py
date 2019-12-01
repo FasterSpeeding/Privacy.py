@@ -18,17 +18,15 @@ class APIClient(LoggingClass):
     Attributes:
         api (privacy.http_client.HTTPClient): The client used for making requests.
     """
-    def __init__(
-            self, api_key: str = None,
-            backoff: bool = True, sandboxed: bool = False) -> None:
+    def __init__(self, api_key: str, backoff: bool = True, sandboxed: bool = False) -> None:
         """
         Args:
-            api_key (str, optional): Used to set the default authorisation.
+            api_key (str): Used to set the default authorisation.
             backoff (bool, optional): Used to disable toggle retry on status codes 5xx or 429.
                 Will raises `privacy.http_client.APIException` instead of retrying if False.
             sandboxed (bool, optional): Used to enable Privacy's sandboxed api.
         """
-        self.api = HTTPClient(api_key=api_key, backoff=backoff, sandboxed=sandboxed)
+        self.api = HTTPClient(api_key, backoff, sandboxed)
 
     def __enter__(self):
         return self
@@ -36,32 +34,24 @@ class APIClient(LoggingClass):
     def __exit__(self, exc_type, exc_val, exc_tb):
         return self.api.session.close()
 
-    def update_api_key(self, api_key: str = None) -> None:
+    def update_api_key(self, api_key: str) -> None:
         """
-        Update or unset the default authorisation key used by an initiated client.
+        Update the default authorisation key used by an initiated client.
 
         Args:
-            api_key (str, optional): The key used for authentication, will unset if not passed.
+            api_key (str): The key used for authentication.
         """
-        if api_key:
-            self.api.session.headers["Authorization"] = "api-key " + api_key
-        else:
-            self.api.session.headers.pop("Authorization", None)
+        self.api.session.headers["Authorization"] = "api-key " + api_key
 
-    def get_api_key(self) -> str:
+    @property
+    def api_key(self) -> str:
         """
         Get the set api key.
 
         Returns:
             str: Api key.
-
-        Raises:
-            TypeError: If api authentication key is unset.
         """
-        api_key = self.api.session.headers.get("Authorization")
-        if not api_key:
-            raise TypeError("Api authentication key is unset.")
-
+        api_key = self.api.session.headers["Authorization"]
         return api_key.replace("api-key ", "")
 
     def cards_list(
@@ -82,7 +72,6 @@ class APIClient(LoggingClass):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         return Card.paginate(
             self,
@@ -118,7 +107,6 @@ class APIClient(LoggingClass):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         return Transaction.paginate(
             self,
@@ -153,7 +141,6 @@ class APIClient(LoggingClass):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         request = self.api(
             Routes.CARDS_CREATE,
@@ -185,7 +172,6 @@ class APIClient(LoggingClass):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
 
         Note:
             Setting state to `privacy.schema.card.State.CLOSED` cannot be undone.
@@ -214,12 +200,11 @@ class APIClient(LoggingClass):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         # Support both pydantic objects and json serializable dicts.
         embed_request_json = embed_request.json() if hasattr(embed_request, "json") else json.dumps(embed_request)
         embed_request = b64_encode(bytes(embed_request_json, "utf-8"))
-        embed_request_hmac = hmac_sign(self.get_api_key(), embed_request)
+        embed_request_hmac = hmac_sign(self.api_key, embed_request)
 
         return self.api(
             Routes.HOSTED_CARD_UI_GET,
@@ -241,7 +226,6 @@ class APIClient(LoggingClass):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         return self.api(
             Routes.SIMULATE_AUTH,
@@ -263,7 +247,6 @@ class APIClient(LoggingClass):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         self.api(
             Routes.SIMULATE_VOID,
@@ -281,7 +264,6 @@ class APIClient(LoggingClass):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         self.api(
             Routes.SIMULATE_CLEARING,
@@ -303,7 +285,6 @@ class APIClient(LoggingClass):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         return self.api(
             Routes.SIMULATE_RETURN,
