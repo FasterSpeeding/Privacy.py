@@ -1,6 +1,6 @@
 """Used for handling paginated api endpoints."""
 from enum import Enum
-from typing import Any, Iterable
+import typing
 
 
 class Direction(Enum):
@@ -22,13 +22,13 @@ class PaginatedResponse:
         metadata (dict, optional): Used to store extra data returned by the api (`total_entries` and `total_pages`).
         pymodel (privacy.schema.base.CustomBase): The dataclass this wraps and returns objects as during iteration.
     """
-    direction = None
-    limit = None
-    metadata = None
-    _list = None
-    _page = None
+    direction: Direction = None
+    limit: typing.Optional[int] = None
+    metadata: dict = None
+    _list: typing.Sequence = None
+    _page: int = None
 
-    def __init__(self, pymodel, client, *args, **kwargs: Any) -> None:
+    def __init__(self, pymodel, client, *args, **kwargs: typing.Any) -> None:
         """
         Args:
             pymodel (privacy.schema.base.CustomBase): The dataclass that this will be
@@ -54,13 +54,13 @@ class PaginatedResponse:
 
         self._buffer = []
 
-    def __iter__(self) -> Iterable:
+    def __iter__(self) -> typing.Iterable:
         if self.direction is None:
             self.set_direction()
 
         return self
 
-    def __next__(self) -> Any:
+    def __next__(self) -> typing.Any:
         if self.limit:
             self.limit -= 1
         elif self.limit == 0:
