@@ -1,5 +1,6 @@
 """The main client of this module."""
-from typing import Iterable
+import json
+import typing
 
 
 from privacy.http_client import HTTPClient, Routes
@@ -8,11 +9,6 @@ from privacy.schema.transaction import Transaction
 from privacy.schema.embed import EmbedRequest
 from privacy.util.functional import b64_encode, hmac_sign, optional
 from privacy.util.logging import LoggingClass
-
-
-def auth_header(api_key=None) -> dict:
-    """Optionally overwrite authorisation header for a single request."""
-    return optional(Authorization=api_key)
 
 
 class APIClient(LoggingClass):
@@ -28,11 +24,17 @@ class APIClient(LoggingClass):
         """
         Args:
             api_key (str, optional): Used to set the default authorisation.
-            sandboxed (bool, optional): Used to enable Privacy's sandboxed api.
             backoff (bool, optional): Used to disable toggle retry on status codes 5xx or 429.
                 Will raises `privacy.http_client.APIException` instead of retrying if False.
+            sandboxed (bool, optional): Used to enable Privacy's sandboxed api.
         """
         self.api = HTTPClient(api_key=api_key, backoff=backoff, sandboxed=sandboxed)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return self.api.session.close()
 
     def update_api_key(self, api_key: str = None) -> None:
         """
@@ -64,7 +66,7 @@ class APIClient(LoggingClass):
 
     def cards_list(
             self, token: str = None, page: int = None, page_size: int = None,
-            begin: str = None, end: str = None, api_key: str = None) -> Iterable[Card]:
+            begin: str = None, end: str = None) -> typing.Iterable[Card]:
         """
         Get an iterator of the cards owned by this account.
 
@@ -74,7 +76,6 @@ class APIClient(LoggingClass):
             page_size (str, optional): Used to specify the page size.
             begin (str, optional): The start date of the results as a date string (`YYYY-MM-DD`).
             end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
-            api_key (str, optional): Used to override authentication.
 
         Returns:
             `privacy.util.pagination.PaginatedResponse` [ `privacy.schema.card.Card` ]
@@ -86,7 +87,6 @@ class APIClient(LoggingClass):
         return Card.paginate(
             self,
             Routes.CARDS_LIST,
-            headers=auth_header(api_key),
             params=optional(
                 card_token=token,
                 page=page,
@@ -99,7 +99,7 @@ class APIClient(LoggingClass):
     def transactions_list(
             self, approval_status: str = "all", token: str = None,
             card_token: str = None, page: int = None, page_size: int = None,
-            begin: str = None, end: str = None, api_key: str = None) -> Iterable[Transaction]:
+            begin: str = None, end: str = None) -> typing.Iterable[Transaction]:
         """
         Get an iterator of the transactions under this account.
 
@@ -112,7 +112,6 @@ class APIClient(LoggingClass):
             page_size (int, optional): Used to specify the page size.
             begin (str, optional): The starting date of the results as a date string (`YYYY-MM-DD`).
             end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
-            api_key (str, optional): Used to override authentication.
 
         Returns:
             `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.transaction.Transaction` ]
@@ -125,7 +124,6 @@ class APIClient(LoggingClass):
             self,
             Routes.TRANSACTIONS_LIST,
             dict(approval_status=approval_status),
-            headers=auth_header(api_key),
             params=optional(
                 transaction_token=token,
                 card_token=card_token,
@@ -140,8 +138,7 @@ class APIClient(LoggingClass):
     def cards_create(
             self, card_type: Type, memo: str = None,
             spend_limit: int = None,
-            spend_limit_duration: SpendLimitDuration = None,
-            api_key=None) -> Card:
+            spend_limit_duration: SpendLimitDuration = None) -> Card:
         """
         PREMIUM ENDPOINT - Create a card.
 
@@ -150,7 +147,6 @@ class APIClient(LoggingClass):
             memo (str, optional): The card's name.
             spend_limit (int, optional): The spending limit of the card (in pennies).
             spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): The spend limit duration.
-            api_key (str, optional): Used to override authentication.
 
         Returns:
             `privacy.schema.card.Card`
@@ -161,7 +157,6 @@ class APIClient(LoggingClass):
         """
         request = self.api(
             Routes.CARDS_CREATE,
-            headers=auth_header(api_key),
             json=optional(
                 type=card_type,
                 memo=memo,
@@ -174,8 +169,7 @@ class APIClient(LoggingClass):
     def cards_modify(
             self, token: str, state: State = None,
             memo: str = None, spend_limit: int = None,
-            spend_limit_duration: SpendLimitDuration = None,
-            api_key: str = None) -> Card:
+            spend_limit_duration: SpendLimitDuration = None) -> Card:
         """
         PREMIUM ENDPOINT - Modify an existing card.
 
@@ -185,7 +179,6 @@ class APIClient(LoggingClass):
             memo (str, optional): The name card name.
             spend_limit (int, optional): The new card spend limit (in pennies).
             spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): The spend limit duration.
-            api_key (str, optional): Used to override authentication.
 
         Returns:
             `privacy.schema.card.Card`
@@ -199,7 +192,6 @@ class APIClient(LoggingClass):
         """
         request = self.api(
             Routes.CARDS_MODIFY,
-            headers=auth_header(api_key),
             json=optional(
                 card_token=token,
                 state=state,
@@ -210,14 +202,12 @@ class APIClient(LoggingClass):
         )
         return Card(client=self.api, **request.json())
 
-    def hoisted_card_ui_get(
-            self, embed_request: EmbedRequest, api_key: str = None) -> str:
+    def hoisted_card_ui_get(self, embed_request: typing.Union[EmbedRequest, dict]) -> str:
         """
         PREMIUM ENDPOINT - get a hosted card UI
 
         Args:
-            embed_request (privacy.schema.embed.EmbedRequest): The embed request.
-            api_key (str, optional): Used to override authentication.
+            embed_request (privacy.schema.embed.EmbedRequest or dict): The embed request.
 
         Returns:
             str: The iframe body.
@@ -226,22 +216,18 @@ class APIClient(LoggingClass):
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
             TypeError: If api authentication key is unset.
         """
-        api_key = api_key or self.get_api_key()
-
-        embed_request_json = embed_request.json()
+        # Support both pydantic objects and json serializable dicts.
+        embed_request_json = embed_request.json() if hasattr(embed_request, "json") else json.dumps(embed_request)
         embed_request = b64_encode(bytes(embed_request_json, "utf-8"))
-        embed_request_hmac = hmac_sign(api_key, embed_request)
+        embed_request_hmac = hmac_sign(self.get_api_key(), embed_request)
 
         return self.api(
             Routes.HOSTED_CARD_UI_GET,
-            headers=auth_header(api_key),
             json=dict(embed_request=embed_request, hmac=embed_request_hmac),
         ).content
 
     # Sandbox
-    def auth_simulate(
-            self, descriptor: str, pan: str,
-            amount: int, api_key: str = None) -> dict:
+    def auth_simulate(self, descriptor: str, pan: str, amount: int) -> dict:
         """
         SANDBOX ENDPOINT - Simulate an auth request from a merchant acquirer.
 
@@ -249,7 +235,6 @@ class APIClient(LoggingClass):
             descriptor (str): The merchant's descriptor.
             pan (str): The 16 digit card number.
             amount (int): The amount to authorise (in pennies).
-            api_key (str): Used to override authentication.
 
         Returns:
             dict: {"token": str}
@@ -260,7 +245,6 @@ class APIClient(LoggingClass):
         """
         return self.api(
             Routes.SIMULATE_AUTH,
-            headers=auth_header(api_key),
             json=dict(
                 descriptor=descriptor,
                 pan=pan,
@@ -268,8 +252,7 @@ class APIClient(LoggingClass):
             )
         ).json()
 
-    def void_simulate(
-            self, token: str, amount: int, api_key: str = None) -> None:
+    def void_simulate(self, token: str, amount: int) -> None:
         """
         SANDBOX ENDPOINT - Void an existing, uncleared/pending authorisation.
 
@@ -277,7 +260,6 @@ class APIClient(LoggingClass):
             token (str): The transaction token returned by Routes.SIMULATE_AUTH.
             amount (int): The amount to void (in pennies).
                 Can be less than or equal to original authorisation.
-            api_key (str): Used to override authentication.
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
@@ -285,12 +267,10 @@ class APIClient(LoggingClass):
         """
         self.api(
             Routes.SIMULATE_VOID,
-            headers=auth_header(api_key),
             json=dict(token=token, amount=amount),
         )
 
-    def clearing_simulate(
-            self, token: str, amount: int, api_key: str = None) -> None:
+    def clearing_simulate(self, token: str, amount: int) -> None:
         """
         SANDBOX ENDPOINT - Clear an existing authorisation.
 
@@ -298,7 +278,6 @@ class APIClient(LoggingClass):
             token (str): The transaction token returned by Routes.SIMULATE_AUTH.
             amount (int): The amount to complete (in pennies).
                 Can be less than or equal to original authorisation.
-            api_key (str): Used to override authentication.
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
@@ -306,13 +285,10 @@ class APIClient(LoggingClass):
         """
         self.api(
             Routes.SIMULATE_CLEARING,
-            headers=auth_header(api_key),
             json=dict(token=token, amount=amount),
         )
 
-    def return_simulate(
-            self, descriptor: str, pan: str,
-            amount: int, api_key: str = None) -> dict:
+    def return_simulate(self, descriptor: str, pan: str, amount: int) -> dict:
         """
         SANDBOX ENDPOINT - Return/refund an amount back to a card.
 
@@ -321,7 +297,6 @@ class APIClient(LoggingClass):
             pan (str): A 16 digit card number.
             amount (int): The amount to return to the card (in pennies).
                 Can be less than or equal to original authorisation.
-            api_key (str, optional): Used to override authentication.
 
         Returns:
             dict: {"token": str}
@@ -332,7 +307,6 @@ class APIClient(LoggingClass):
         """
         return self.api(
             Routes.SIMULATE_RETURN,
-            headers=auth_header(api_key),
             json=dict(
                 descriptor=descriptor,
                 pan=pan,
