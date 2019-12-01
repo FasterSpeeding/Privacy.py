@@ -21,7 +21,7 @@ These endpoints can be access by any account.
 ```python
 import privacy
 
-client = privacy.Client("api-key")
+client = privacy.Client("api-key")  # This supports `with privacy.Client("api-key") as client:`
 
 # Returns an iterator of the cards available to your account (based on optional args).
 iter_cards = client.cards_list(

@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "privacy.py"
-version = "2019.11.16.dev1"
+version = "2019.12.01"
 description = "A Python lib for Privacy.com"
 authors = ["FasterSpeeding <Luke@lmbyrne.dev>"]
 license = "BSD-3-Clause"
