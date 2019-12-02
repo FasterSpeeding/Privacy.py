@@ -5,8 +5,8 @@ import typing
 
 class Direction(Enum):
     """An enum of the directions used by `privacy.util.pagination.PaginatedResponse`"""
-    UP = 0
-    DOWN = 1
+    UP = "UP"
+    DOWN = "DOWN"
 
 
 class PaginatedResponse:
@@ -120,12 +120,12 @@ class PaginatedResponse:
 
     def get_starting_point(self) -> None:
         """Used to get the starting page number, making an api call if required."""
-        if self.direction == Direction.UP:
+        if self.direction is Direction.UP:
             if self._page is None:
                 self._page = 0
             elif self._page > 0:
                 self._page -= 1
-        elif self.direction == Direction.DOWN:
+        elif self.direction is Direction.DOWN:
             if self._page is None:
                 data = self.client.api(*self.args, **self.kwargs).json()
                 self._page = data.pop("total_pages")
@@ -162,9 +162,9 @@ class PaginatedResponse:
 
     def shift_page_num(self) -> None:
         """Move the page number by one based on self.direction."""
-        if self.direction == Direction.UP:
+        if self.direction is Direction.UP:
             self._page += 1
-        elif self.direction == Direction.DOWN:
+        elif self.direction is Direction.DOWN:
             self._page -= 1
         else:
             raise TypeError(f"Invalid pagination direction: {self.direction}")
