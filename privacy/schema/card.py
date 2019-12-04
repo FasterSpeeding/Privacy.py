@@ -5,6 +5,7 @@ import typing
 
 from privacy.schema.base import CustomBase
 from privacy.schema.funding import Account
+from privacy.util.pagination import PaginatedResponse
 
 
 class Type(Enum):
@@ -64,8 +65,7 @@ class Card(CustomBase):
     def update(
             self, state: State = None, memo: str = None,
             spend_limit: int = None,
-            spend_limit_duration: SpendLimitDuration = None,
-            api_key: str = None) -> None:
+            spend_limit_duration: SpendLimitDuration = None) -> None:
         """
         PREMIUM ENDPOINT - Modify an existing card.
 
@@ -74,7 +74,6 @@ class Card(CustomBase):
             memo (str, optional): The name for the card.
             spend_limit (int, optional): The card spend limit (in pennies).
             spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): Spend limit duration.
-            api_key (str, optional): A key used for overriding authentication.
 
         Note:
             Setting state to `privacy.schema.card.State.CLOSED` is
@@ -84,16 +83,15 @@ class Card(CustomBase):
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
             TypeError: If api authentication key is unset.
         """
-        card = self.client.cards_modify(
-            self.token, state, memo, spend_limit,
-            spend_limit_duration, api_key,
+        card = self._client.cards_modify(
+            self.token, state, memo, spend_limit, spend_limit_duration,
         )
         self.__init__(**card.dict())
 
     def get_transactions(
             self, approval_status: str = "all", token: str = None,
             page: int = None, page_size: int = None, begin: str = None,
-            end: str = None, api_key: str = None):
+            end: str = None) -> PaginatedResponse:
         """
         Get an iterator of the transactions under this account.
 
@@ -105,7 +103,6 @@ class Card(CustomBase):
             page_size (int, optional): Used to specify the page size.
             begin (str, optional): The starting date of the results as a date string (`YYYY-MM-DD`).
             end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
-            api_key (str, optional): Used to override authentication.
 
         Returns:
             `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.transaction.Transaction` ]
@@ -114,9 +111,9 @@ class Card(CustomBase):
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
             TypeError: If api authentication key is unset.
         """
-        return self.client.transactions_list(
+        return self._client.transactions_list(
             approval_status, token, self.token,
-            page, page_size, begin, end, api_key)
+            page, page_size, begin, end)
 
     def __repr__(self):
         return f"<Card({self.memo}:{self.token})>"

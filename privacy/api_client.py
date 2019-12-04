@@ -142,7 +142,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        request = self.api(
+        response = self.api(
             Routes.CARDS_CREATE,
             json=optional(
                 type=card_type,
@@ -151,7 +151,7 @@ class APIClient(LoggingClass):
                 spend_limit_duration=spend_limit_duration,
             )
         )
-        return Card(client=self.api, **request.json())
+        return Card(client=self, **response.json())
 
     def cards_modify(
             self, token: str, state: State = None,
@@ -176,7 +176,7 @@ class APIClient(LoggingClass):
         Note:
             Setting state to `privacy.schema.card.State.CLOSED` cannot be undone.
         """
-        request = self.api(
+        response = self.api(
             Routes.CARDS_MODIFY,
             json=optional(
                 card_token=token,
@@ -186,7 +186,7 @@ class APIClient(LoggingClass):
                 spend_limit_duration=spend_limit_duration,
             )
         )
-        return Card(client=self.api, **request.json())
+        return Card(client=self, **response.json())
 
     def hoisted_card_ui_get(self, embed_request: typing.Union[EmbedRequest, dict]) -> str:
         """

@@ -1,21 +1,22 @@
 """The client used for handling raw requests."""
 from platform import python_version
-from json.decoder import JSONDecodeError
 from time import sleep
+import json
 import random
 import typing
 
 
-from requests import models, session, __version__ as req_version
+import requests
 
 
 from privacy.util import GIT, VERSION
+from privacy.util.json import CustomJsonEncoder
 from privacy.util.logging import LoggingClass
 
 
 class APIException(Exception):
     """Exception used for handling invalid status codes."""
-    def __init__(self, response: models.Response):
+    def __init__(self, response: requests.models.Response):
         """
         Args:
             response (requests.models.Response): The response object.
@@ -24,13 +25,13 @@ class APIException(Exception):
         if response.headers.get("Content-Type") == "application/json":
             try:
                 error_msg = response.json()["message"]
-            except (KeyError, JSONDecodeError):
+            except (KeyError, json.decoder.JSONDecodeError):
                 pass
 
         self.code = response.status_code
         self.msg = error_msg
         self.raw = response.content
-        super(APIException, self).__init__(
+        super().__init__(
             f"{response.status_code}: {error_msg}"
         )
 
@@ -62,8 +63,8 @@ class HTTPClient(LoggingClass):
         backoff (bool): Toggles retries and exponential backoff.
         session (requests.session): The request session used for api calls.
     """
-    BASE_URL = "https://api.privacy.com/v1/"
-    RETRIES = 5
+    BASE_URL: str = "https://api.privacy.com/v1/"
+    RETRIES: int = 5
 
     def __init__(self, api_key: str, backoff: bool = True, sandboxed: bool = False):
         """
@@ -74,11 +75,11 @@ class HTTPClient(LoggingClass):
             sandboxed (bool, optional): Used for switching to Privacy's sandboxed api.
         """
         self.backoff = backoff
-        self.session = session()
+        self.session = requests.session()
         self.session.headers.update({
             "Authorization": "api-key " + api_key,
             "User-Agent": (f"Privacy.py (github {GIT} {VERSION}) "
-                           f"Python/{python_version()} requests/{req_version}")
+                           f"Python/{python_version()} requests/{requests.__version__}")
         })
 
         if sandboxed:
@@ -87,7 +88,7 @@ class HTTPClient(LoggingClass):
     def __call__(
             self, route: typing.List[str],
             url_kwargs: typing.Dict[str, str] = None,
-            retries: int = 0, **kwargs) -> models.Response:
+            retries: int = 0, **kwargs) -> requests.models.Response:
         """
         Args:
             route (privacy.http_client.Routes): The route for this call.
@@ -106,8 +107,9 @@ class HTTPClient(LoggingClass):
             kwargs["headers"] = {}
 
         # Ensure the custom json encoder is used for pydantic objects.
-        if hasattr(kwargs.get("json"), "json"):
-            kwargs["data"] = kwargs.pop("json").json()
+        json_data = kwargs.pop("json", None)
+        if json_data:
+            kwargs["data"] = CustomJsonEncoder.dumps(json_data)
             kwargs["headers"]["content-type"] = "application/json"
 
         method, url = route
@@ -147,7 +149,7 @@ class HTTPClient(LoggingClass):
         return (2 ** retries) + random.randint(0, 1000) / 1000
 
     @staticmethod
-    def should_backoff(response: models.Response):
+    def should_backoff(response: requests.models.Response):
         """
         Work out if the client should retry after a 5xx or 429.
 
@@ -166,7 +168,7 @@ class HTTPClient(LoggingClass):
         # Attempt to get error message and if not present, give up.
         try:
             msg = response.json()["message"]
-        except (KeyError, JSONDecodeError):
+        except (KeyError, json.decoder.JSONDecodeError):
             return False
 
         return msg == "Rate limited, too many requests per second"
