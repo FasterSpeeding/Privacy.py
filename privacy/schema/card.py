@@ -42,7 +42,7 @@ class Card(CustomBase):
         exp_year (str, premium): The expiry year of this card (format YYYY).
         hostname (str): The hostname of the card's locked merchant (empty if not applicable).
         last_four (str): The last four digits of the card's number.
-        memo (str): The name of the card.
+        memo (str, premium): The name of the card.
         spend_limit (int): The limit for transaction authorisations with this card (in pennies).
         spend_limit_duration (privacy.schema.card.SpendLimitDuration): The spend limit duration.
         token (str): The unique identifier of this card.
@@ -55,7 +55,7 @@ class Card(CustomBase):
     hostname: str
     last_four: str
     memo: str
-    pan: str
+    pan: typing.Optional[str]
     spend_limit: int
     spend_limit_duration: SpendLimitDuration
     state: State
@@ -81,7 +81,6 @@ class Card(CustomBase):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         card = self._client.cards_modify(
             self.token, state, memo, spend_limit, spend_limit_duration,
@@ -109,7 +108,6 @@ class Card(CustomBase):
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
-            TypeError: If api authentication key is unset.
         """
         return self._client.transactions_list(
             approval_status, token, self.token,

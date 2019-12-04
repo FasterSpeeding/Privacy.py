@@ -56,15 +56,16 @@ class Routes:
 
 class HTTPClient(LoggingClass):
     """
-    The client used for handling api requests and errors.
+    The client used for handling http requests and errors.
 
     Attributes:
-        BASE_URL (string): The url used as the base for all api calls.
+        BASE_URL (string): The url used as the base for all http calls.
         backoff (bool): Toggles retries and exponential backoff.
-        session (requests.session): The request session used for api calls.
+        session (requests.session): The request session used for http calls.
     """
     BASE_URL: str = "https://api.privacy.com/v1/"
     RETRIES: int = 5
+    session: requests.session = None
 
     def __init__(self, api_key: str, backoff: bool = True, sandboxed: bool = False):
         """
@@ -72,7 +73,7 @@ class HTTPClient(LoggingClass):
             api_key (string): The key used for authentication.
             backoff (bool, optional): Used to disable automatic retry on status codes 5xx or 429.
                 Client will raise `privacy.http_client.APIException` instead of retrying if False.
-            sandboxed (bool, optional): Used for switching to Privacy's sandboxed api.
+            sandboxed (bool, optional): Used for switching to Privacy's sandboxed http.
         """
         self.backoff = backoff
         self.session = requests.session()
@@ -119,7 +120,7 @@ class HTTPClient(LoggingClass):
         if response.status_code < 400:
             return response
 
-        # Raise general api errors.
+        # Raise general http errors.
         if response.status_code < 500 and response.status_code != 429:
             raise APIException(response)
 
@@ -156,7 +157,7 @@ class HTTPClient(LoggingClass):
         Args:
              response (requests.models.Response): The response object.
         """
-        # Note right now, if something inbetween us and the api returns a 429, this will raise an exception.
+        # Note right now, if something in-between us and the http returns a 429, this will raise an exception.
         # Always retry on a 5xx.
         if response.status_code >= 500:
             return True

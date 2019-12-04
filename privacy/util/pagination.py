@@ -1,4 +1,4 @@
-"""Used for handling paginated api endpoints."""
+"""Used for handling paginated http endpoints."""
 from enum import Enum
 import typing
 
@@ -105,7 +105,7 @@ class PaginatedResponse:
         """Used to get the next page's data and store it in _buffer."""
         self.shift_page_num()
         self.kwargs["params"]["page"] = self._page
-        response = self._client.api(*self.args, **self.kwargs).json()
+        response = self._client.http(*self.args, **self.kwargs).json()
         data = response.pop("data", None)
         if not data:
             return
@@ -126,7 +126,7 @@ class PaginatedResponse:
                 self._page -= 1
         elif self.direction is Direction.DOWN:
             if self._page is None:
-                data = self._client.api(*self.args, **self.kwargs).json()
+                data = self._client.http(*self.args, **self.kwargs).json()
                 self._page = data.pop("total_pages")
 
             self._page += 1

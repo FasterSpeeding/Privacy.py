@@ -16,7 +16,7 @@ class APIClient(LoggingClass):
     The client used for using Privacy.com's restful api endpoints.
 
     Attributes:
-        api (privacy.http_client.HTTPClient): The client used for making requests.
+        http (privacy.http_client.HTTPClient): The client used for making requests.
     """
     def __init__(self, api_key: str, backoff: bool = True, sandboxed: bool = False) -> None:
         """
@@ -26,13 +26,13 @@ class APIClient(LoggingClass):
                 Will raises `privacy.http_client.APIException` instead of retrying if False.
             sandboxed (bool, optional): Used to enable Privacy's sandboxed api.
         """
-        self.api = HTTPClient(api_key, backoff, sandboxed)
+        self.http = HTTPClient(api_key, backoff, sandboxed)
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        return self.api.session.close()
+        return self.http.session.close()
 
     def update_api_key(self, api_key: str) -> None:
         """
@@ -41,17 +41,17 @@ class APIClient(LoggingClass):
         Args:
             api_key (str): The key used for authentication.
         """
-        self.api.session.headers["Authorization"] = "api-key " + api_key
+        self.http.session.headers["Authorization"] = "api-key " + api_key
 
     @property
     def api_key(self) -> str:
         """
-        Get the set api key.
+        Get the set api authorisation key.
 
         Returns:
             str: Api key.
         """
-        api_key = self.api.session.headers["Authorization"]
+        api_key = self.http.session.headers["Authorization"]
         return api_key.replace("api-key ", "")
 
     def cards_list(
@@ -142,7 +142,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        response = self.api(
+        response = self.http(
             Routes.CARDS_CREATE,
             json=optional(
                 type=card_type,
@@ -176,7 +176,7 @@ class APIClient(LoggingClass):
         Note:
             Setting state to `privacy.schema.card.State.CLOSED` cannot be undone.
         """
-        response = self.api(
+        response = self.http(
             Routes.CARDS_MODIFY,
             json=optional(
                 card_token=token,
@@ -206,7 +206,7 @@ class APIClient(LoggingClass):
         embed_request = b64_encode(bytes(embed_request_json, "utf-8"))
         embed_request_hmac = hmac_sign(self.api_key, embed_request)
 
-        return self.api(
+        return self.http(
             Routes.HOSTED_CARD_UI_GET,
             json=dict(embed_request=embed_request, hmac=embed_request_hmac),
         ).content
@@ -227,7 +227,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        return self.api(
+        return self.http(
             Routes.SIMULATE_AUTH,
             json=dict(
                 descriptor=descriptor,
@@ -248,7 +248,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        self.api(
+        self.http(
             Routes.SIMULATE_VOID,
             json=dict(token=token, amount=amount),
         )
@@ -265,7 +265,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        self.api(
+        self.http(
             Routes.SIMULATE_CLEARING,
             json=dict(token=token, amount=amount),
         )
@@ -286,7 +286,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        return self.api(
+        return self.http(
             Routes.SIMULATE_RETURN,
             json=dict(
                 descriptor=descriptor,
