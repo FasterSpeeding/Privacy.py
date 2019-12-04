@@ -28,7 +28,6 @@ def mock_card_payload():
     }
 
 
-@pytest.mark.model()
 class TestCard:
     def test_model(self, mock_card_payload):
         card_obj = card.Card(**mock_card_payload)

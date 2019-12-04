@@ -26,7 +26,6 @@ def MockModel(mock_payload):
     return MockModel(**mock_payload)
 
 
-@pytest.mark.model
 class TestModel:
     @staticmethod
     def test_model(MockModel):
