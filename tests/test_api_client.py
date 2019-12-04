@@ -8,7 +8,7 @@ import requests
 
 from privacy import api_client
 from privacy import http_client
-from privacy.schema import card
+from privacy.schema import cards
 
 
 def make_mock_response(json_return):
@@ -71,19 +71,19 @@ class TestAPIClient:
     #     mock_api_client.http.session.request.return_value = make_mock_response(return_data)
         mock_api_client.http.return_value = make_mock_response(mock_card_payload)
         result = mock_api_client.cards_create(
-            card_type=card.Type.SINGLE_USE,
+            card_type=cards.Type.SINGLE_USE,
             memo="Robbin Williams quote",
             spend_limit=55,
-            spend_limit_duration=card.SpendLimitDuration.MONTHLY,
+            spend_limit_duration=cards.SpendLimitDuration.MONTHLY,
         )
-        assert isinstance(result, card.Card)
+        assert isinstance(result, cards.Card)
         mock_api_client.http.assert_called_once_with(
             ("GET", "card"),
             json={
-                "type": card.Type.SINGLE_USE,
+                "type": cards.Type.SINGLE_USE,
                 "memo": "Robbin Williams quote",
                 "spend_limit": 55,
-                "spend_limit_duration": card.SpendLimitDuration.MONTHLY,
+                "spend_limit_duration": cards.SpendLimitDuration.MONTHLY,
         })
 
     @pytest.mark.skip(reason="Not Implemented")
@@ -91,18 +91,18 @@ class TestAPIClient:
         mock_api_client.http.return_value = make_mock_response(mock_card_payload)
         result = mock_api_client.cards_modify(
             token="2323-2323-2323",
-            state=card.State.CLOSED,
+            state=cards.State.CLOSED,
             memo="rip",
             spend_limit=22,
-            spend_limit_duration=card.SpendLimitDuration.FOREVER,
+            spend_limit_duration=cards.SpendLimitDuration.FOREVER,
         )
-        assert isinstance(result, card.Card)
+        assert isinstance(result, cards.Card)
         mock_api_client.http.assert_called_once_with(
             ("PUT", "card"),
             json={
                 "card_token": "2323-2323-2323",
-                "state": card.State.CLOSED,
+                "state": cards.State.CLOSED,
                 "memo": "rip",
                 "spend_limit": 22,
-                "spend_limit_duration": card.SpendLimitDuration.FOREVER,
+                "spend_limit_duration": cards.SpendLimitDuration.FOREVER,
         })

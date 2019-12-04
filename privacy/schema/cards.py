@@ -4,7 +4,7 @@ import typing
 
 
 from privacy.schema.base import CustomBase
-from privacy.schema.funding import Account
+from privacy.schema.fundings import Account
 from privacy.util.pagination import PaginatedResponse
 
 
@@ -37,16 +37,16 @@ class Card(CustomBase):
 
     Attributes:
         cvv (str, premium): The three digit cvv code on the card.
-        funding (privacy.schema.funding.Account): The card's funding account.
+        funding (privacy.schema.fundings.Account): The card's funding account.
         exp_month (str, premium): The expiry month of this card (format MM).
         exp_year (str, premium): The expiry year of this card (format YYYY).
         hostname (str): The hostname of the card's locked merchant (empty if not applicable).
         last_four (str): The last four digits of the card's number.
         memo (str, premium): The name of the card.
         spend_limit (int): The limit for transaction authorisations with this card (in pennies).
-        spend_limit_duration (privacy.schema.card.SpendLimitDuration): The spend limit duration.
+        spend_limit_duration (privacy.schema.cards.SpendLimitDuration): The spend limit duration.
         token (str): The unique identifier of this card.
-        type (privacy.schema.card.Type): The card type.
+        type (privacy.schema.cards.Type): The card type.
     """
     cvv: typing.Optional[str]
     funding: Account
@@ -70,13 +70,13 @@ class Card(CustomBase):
         PREMIUM ENDPOINT - Modify an existing card.
 
         Args:
-            state (privacy.schema.card.State, optional): The card state.
+            state (privacy.schema.cards.State, optional): The card state.
             memo (str, optional): The name for the card.
             spend_limit (int, optional): The card spend limit (in pennies).
-            spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): Spend limit duration.
+            spend_limit_duration (privacy.schema.cards.SpendLimitDuration, optional): Spend limit duration.
 
         Note:
-            Setting state to `privacy.schema.card.State.CLOSED` is
+            Setting state to `privacy.schema.cards.State.CLOSED` is
             a final action that cannot be undone.
 
         Raises:
@@ -104,7 +104,7 @@ class Card(CustomBase):
             end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
 
         Returns:
-            `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.transaction.Transaction` ]
+            `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.transactions.Transaction` ]
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.

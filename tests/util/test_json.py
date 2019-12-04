@@ -1,12 +1,12 @@
 from privacy.util.json import CustomJsonEncoder
-from privacy.schema import funding
+from privacy.schema import fundings
 
 
 def test_CustomJsonEncoder():
     json_string = CustomJsonEncoder.dumps(
         {
-            "account": funding.Account(
-                amount=40, name="ok", token="43942", type=funding.Type.CARD_DEBIT
+            "account": fundings.Account(
+                amount=40, name="ok", token="43942", type=fundings.Type.CARD_DEBIT
             ),
         }
     )

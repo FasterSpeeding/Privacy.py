@@ -4,9 +4,9 @@ import typing
 
 
 from privacy.http_client import HTTPClient, Routes
-from privacy.schema.card import Card, SpendLimitDuration, State, Type
-from privacy.schema.transaction import Transaction
-from privacy.schema.embed import EmbedRequest
+from privacy.schema.cards import Card, SpendLimitDuration, State, Type
+from privacy.schema.transactions import Transaction
+from privacy.schema.embeds import EmbedRequest
 from privacy.util.functional import b64_encode, hmac_sign, optional
 from privacy.util.logging import LoggingClass
 
@@ -68,7 +68,7 @@ class APIClient(LoggingClass):
             end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
 
         Returns:
-            `privacy.util.pagination.PaginatedResponse` [ `privacy.schema.card.Card` ]
+            `privacy.util.pagination.PaginatedResponse` [ `privacy.schema.cards.Card` ]
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
@@ -103,7 +103,7 @@ class APIClient(LoggingClass):
             end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
 
         Returns:
-            `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.transaction.Transaction` ]
+            `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.transactions.Transaction` ]
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
@@ -131,13 +131,13 @@ class APIClient(LoggingClass):
         PREMIUM ENDPOINT - Create a card.
 
         Args:
-            card_type (privacy.schema.card.Type): The card type.
+            card_type (privacy.schema.cards.Type): The card type.
             memo (str, optional): The card's name.
             spend_limit (int, optional): The spending limit of the card (in pennies).
-            spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): The spend limit duration.
+            spend_limit_duration (privacy.schema.cards.SpendLimitDuration, optional): The spend limit duration.
 
         Returns:
-            `privacy.schema.card.Card`
+            `privacy.schema.cards.Card`
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
@@ -162,19 +162,19 @@ class APIClient(LoggingClass):
 
         Args:
             token (str): The unique token of the card being modified.
-            state (privacy.schema.card.State, optional): The new card state.
+            state (privacy.schema.cards.State, optional): The new card state.
             memo (str, optional): The name card name.
             spend_limit (int, optional): The new card spend limit (in pennies).
-            spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): The spend limit duration.
+            spend_limit_duration (privacy.schema.cards.SpendLimitDuration, optional): The spend limit duration.
 
         Returns:
-            `privacy.schema.card.Card`
+            `privacy.schema.cards.Card`
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
 
         Note:
-            Setting state to `privacy.schema.card.State.CLOSED` cannot be undone.
+            Setting state to `privacy.schema.cards.State.CLOSED` cannot be undone.
         """
         response = self.http(
             Routes.CARDS_MODIFY,
@@ -193,7 +193,7 @@ class APIClient(LoggingClass):
         PREMIUM ENDPOINT - get a hosted card UI
 
         Args:
-            embed_request (privacy.schema.embed.EmbedRequest or dict): The embed request.
+            embed_request (privacy.schema.embeds.EmbedRequest or dict): The embed request.
 
         Returns:
             str: The iframe body.
