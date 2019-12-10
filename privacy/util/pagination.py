@@ -5,6 +5,7 @@ import typing
 
 class Direction(Enum):
     """An enum of the directions used by `privacy.util.pagination.PaginatedResponse`"""
+
     UP = "UP"
     DOWN = "DOWN"
 
@@ -21,6 +22,7 @@ class PaginatedResponse:
         metadata (dict, optional): Used to store extra data returned by the api (`total_entries` and `total_pages`).
         pymodel (privacy.schema.base.CustomBase): The dataclass this wraps and returns objects as during iteration.
     """
+
     direction: Direction = None
     limit: typing.Optional[int] = None
     metadata: dict = None
@@ -144,7 +146,9 @@ class PaginatedResponse:
         self.get_starting_point()
         self._buffer.clear()
 
-    def set_direction(self, direction: Direction = Direction.UP, page: int = None) -> None:
+    def set_direction(
+        self, direction: Direction = Direction.UP, page: int = None
+    ) -> None:
         """
         Used to set the direction that this will crawl through pages during iteration.
 

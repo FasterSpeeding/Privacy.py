@@ -47,9 +47,7 @@ def hmac_sign(key: str, msg: str) -> str:
         str: base64 encoded utf-8 string.
     """
     hmac_buffer = hmac.new(
-        key=bytes(key, "utf-8"),
-        msg=bytes(msg, "utf-8"),
-        digestmod=hashlib.sha256,
+        key=bytes(key, "utf-8"), msg=bytes(msg, "utf-8"), digestmod=hashlib.sha256,
     )
     return b64_encode(hmac_buffer.digest())
 

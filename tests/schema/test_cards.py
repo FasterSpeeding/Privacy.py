@@ -12,7 +12,7 @@ def mock_card_payload():
         "funding": {
             "account_name": "Major Park",
             "token": "4953-3234-1236",
-            "type": "CARD_DEBIT"
+            "type": "CARD_DEBIT",
         },
         "exp_month": "02",
         "exp_year": "2032",

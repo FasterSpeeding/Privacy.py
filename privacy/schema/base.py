@@ -14,6 +14,7 @@ from privacy.util.pagination import PaginatedResponse
 
 class CustomBase(BaseModel, LoggingClass):
     """A custom version of `pydantic.BaseModel` used to handle api objects."""
+
     _client: typing.Any = None
 
     def __init__(self, **kwargs):
@@ -23,6 +24,7 @@ class CustomBase(BaseModel, LoggingClass):
 
     class Config:
         """Config for customising the behaviour of CustomBase."""
+
         json_encoders = {
             datetime: lambda obj: obj.isoformat(),
             Enum: lambda obj: obj.value,

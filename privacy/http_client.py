@@ -16,6 +16,7 @@ from privacy.util.logging import LoggingClass
 
 class APIException(Exception):
     """Exception used for handling invalid status codes."""
+
     def __init__(self, response: requests.models.Response):
         """
         Args:
@@ -31,13 +32,12 @@ class APIException(Exception):
         self.code = response.status_code
         self.msg = error_msg
         self.raw = response.content
-        super().__init__(
-            f"{response.status_code}: {error_msg}"
-        )
+        super().__init__(f"{response.status_code}: {error_msg}")
 
 
 class Routes:
     """The endpoints exposed by Privacy.com's public api"""
+
     CARDS_LIST = ("GET", "card")
     TRANSACTIONS_LIST = ("GET", "transaction/{approval_status}")
 
@@ -63,6 +63,7 @@ class HTTPClient(LoggingClass):
         backoff (bool): Toggles retries and exponential backoff.
         session (requests.session): The request session used for http calls.
     """
+
     BASE_URL: str = "https://api.privacy.com/v1/"
     RETRIES: int = 5
     session: requests.session = None
@@ -77,19 +78,25 @@ class HTTPClient(LoggingClass):
         """
         self.backoff = backoff
         self.session = requests.session()
-        self.session.headers.update({
-            "Authorization": "api-key " + api_key,
-            "User-Agent": (f"Privacy.py (github {GIT} {VERSION}) "
-                           f"Python/{python_version()} requests/{requests.__version__}")
-        })
+        self.session.headers.update(
+            {
+                "Authorization": "api-key " + api_key,
+                "User-Agent": (
+                    f"Privacy.py (github {GIT} {VERSION}) Python/{python_version()} requests/{requests.__version__}"
+                ),
+            }
+        )
 
         if sandboxed:
             self.BASE_URL = "https://sandbox.privacy.com/v1/"
 
     def __call__(
-            self, route: typing.List[str],
-            url_kwargs: typing.Dict[str, str] = None,
-            retries: int = 0, **kwargs) -> requests.models.Response:
+        self,
+        route: typing.List[str],
+        url_kwargs: typing.Dict[str, str] = None,
+        retries: int = 0,
+        **kwargs,
+    ) -> requests.models.Response:
         """
         Args:
             route (privacy.http_client.Routes): The route for this call.
@@ -125,14 +132,20 @@ class HTTPClient(LoggingClass):
             raise APIException(response)
 
         # Handle backoff on 429s and 5xx.
-        if not self.backoff or retries == self.RETRIES - 1 or not self.should_backoff(response):
+        if (
+            not self.backoff
+            or retries == self.RETRIES - 1
+            or not self.should_backoff(response)
+        ):
             raise APIException(response)
 
         backoff = self.exponential_backoff(retries)
         retries += 1
         self.log.warning(
             "Request failed with %s, retrying in %s seconds.",
-            response.status_code, round(backoff, 4))
+            response.status_code,
+            round(backoff, 4),
+        )
         sleep(backoff)
         return self(route, url_kwargs, retries, **kwargs)
 

@@ -3,7 +3,10 @@ from privacy.util import functional
 
 
 def test_b64_encode():
-    assert functional.b64_encode(b"ok, this worked!?!?!?!?") == "b2ssIHRoaXMgd29ya2VkIT8hPyE/IT8="
+    assert (
+        functional.b64_encode(b"ok, this worked!?!?!?!?")
+        == "b2ssIHRoaXMgd29ya2VkIT8hPyE/IT8="
+    )
 
 
 def test_get_dict_path():

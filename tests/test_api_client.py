@@ -19,7 +19,9 @@ def make_mock_response(json_return):
 @pytest.fixture()
 def mock_api_client():  # mock_HTTPClient
     client = api_client.APIClient("a-token")
-    session = mock.MagicMock(requests.session(), headers={"Authorization": "api-key A_key"})
+    session = mock.MagicMock(
+        requests.session(), headers={"Authorization": "api-key A_key"}
+    )
     client.http = mock.MagicMock(spec_set=http_client.HTTPClient, session=session)
     return client
 
@@ -31,7 +33,7 @@ def mock_card_payload():
         "funding": {
             "account_name": "THIS_IS_AN_ACCOUNT",
             "token": "3234-1231-1231",
-            "type": "CARD_DEBIT"
+            "type": "CARD_DEBIT",
         },
         "hostname": "",
         "last_four": "4212",
@@ -47,7 +49,10 @@ def mock_card_payload():
 class TestAPIClient:
     def test_update_api_key(self, mock_api_client):
         mock_api_client.update_api_key("new_api_key")
-        assert mock_api_client.http.session.headers["Authorization"] == "api-key new_api_key"
+        assert (
+            mock_api_client.http.session.headers["Authorization"]
+            == "api-key new_api_key"
+        )
 
     def test_api_key(self, mock_api_client):
         assert mock_api_client.api_key == "A_key"
@@ -55,9 +60,7 @@ class TestAPIClient:
     @pytest.mark.skip(reason="Not Implemented")
     def test_cards_list(self, mock_api_client):
         mock_api_client.cards_list(
-            token="a_token",
-            page=4,
-            page_size=2,
+            token="a_token", page=4, page_size=2,
         )
 
     @pytest.mark.skip(reason="Not Implemented")
@@ -82,6 +85,7 @@ class TestAPIClient:
                 "spend_limit": 55,
                 "spend_limit_duration": cards.SpendLimitDuration.MONTHLY,
             }
+        ,
         )
 
     @pytest.mark.skip(reason="Not Implemented")
@@ -104,4 +108,5 @@ class TestAPIClient:
                 "spend_limit": 22,
                 "spend_limit_duration": cards.SpendLimitDuration.FOREVER,
             }
+        ,
         )

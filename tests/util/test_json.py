@@ -11,7 +11,6 @@ def test_CustomJsonEncoder():
         }
     )
     assert (
-        json_string
-        == '{"account": "{\\"account_name\\": null, \\"amount\\": 40, '
-           '\\"token\\": \\"43942\\", \\"type\\": \\"CARD_DEBIT\\"}"}'
+        json_string == '{"account": "{\\"account_name\\": null, \\"amount\\": 40, '
+        '\\"token\\": \\"43942\\", \\"type\\": \\"CARD_DEBIT\\"}"}'
     )
