@@ -1,4 +1,4 @@
-"""Used for handling paginated api endpoints."""
+"""Used for handling paginated http endpoints."""
 from enum import Enum
 import typing
 
@@ -15,7 +15,6 @@ class PaginatedResponse:
 
     Attributes:
         args: Args passed through to `requests.session.request`.
-        client (privacy.api_client.APIClient): The client used for api calls.
         direction (privacy.util.pagination.Direction): The direction for crawling through pages.
         kwargs: Kwargs passed through to `requests.session.request`.
         limit (int, optional): The amount of object(s) that this will return during iteration (unset for unlimited).
@@ -41,7 +40,7 @@ class PaginatedResponse:
         Raises:
             TypeError: If invalid pagination direction is supplied.
         """
-        self.client = client
+        self._client = client
         self.pymodel = pymodel
 
         # Handle request args and kwargs
@@ -106,7 +105,7 @@ class PaginatedResponse:
         """Used to get the next page's data and store it in _buffer."""
         self.shift_page_num()
         self.kwargs["params"]["page"] = self._page
-        response = self.client.api(*self.args, **self.kwargs).json()
+        response = self._client.http(*self.args, **self.kwargs).json()
         data = response.pop("data", None)
         if not data:
             return
@@ -116,7 +115,7 @@ class PaginatedResponse:
         self.metadata = response
 
         # Convert and store results.
-        self._buffer.extend(self.pymodel.autoiter(data, self.client))
+        self._buffer.extend(self.pymodel.autoiter(data, self._client))
 
     def get_starting_point(self) -> None:
         """Used to get the starting page number, making an api call if required."""
@@ -127,7 +126,7 @@ class PaginatedResponse:
                 self._page -= 1
         elif self.direction is Direction.DOWN:
             if self._page is None:
-                data = self.client.api(*self.args, **self.kwargs).json()
+                data = self._client.http(*self.args, **self.kwargs).json()
                 self._page = data.pop("total_pages")
 
             self._page += 1

@@ -44,9 +44,9 @@ class Event(CustomBase):
     Attributes:
         amount (int): The amount of the transaction event (in pennies).
         created (datetime.datetime): The datetime of when this event was entered into the system.
-        result (privacy.schema.event.Result): The transaction result.
+        result (privacy.schema.events.Result): The transaction result.
         token (str): The globally unique identifier of the event.
-        type (privacy.schema.event.Type): The event type.
+        type (privacy.schema.events.Type): The event type.
     """
     amount: int
     created: datetime

@@ -2,7 +2,7 @@
 import pytest
 
 
-from privacy.schema import card, funding
+from privacy.schema import cards, fundings
 
 
 @pytest.fixture
@@ -28,21 +28,20 @@ def mock_card_payload():
     }
 
 
-@pytest.mark.model()
 class TestCard:
     def test_model(self, mock_card_payload):
-        card_obj = card.Card(**mock_card_payload)
+        card_obj = cards.Card(**mock_card_payload)
         assert card_obj.cvv == "032"
         assert card_obj.funding.account_name == "Major Park"
         assert card_obj.funding.token == "4953-3234-1236"
-        assert card_obj.funding.type is funding.Type.CARD_DEBIT
+        assert card_obj.funding.type is fundings.Type.CARD_DEBIT
         assert card_obj.exp_month == "02"
         assert card_obj.exp_year == "2032"
         assert card_obj.pan == "2043234223422342"
-        assert card_obj.spend_limit_duration is card.SpendLimitDuration.MONTHLY
-        assert card_obj.state is card.State.CLOSED
+        assert card_obj.spend_limit_duration is cards.SpendLimitDuration.MONTHLY
+        assert card_obj.state is cards.State.CLOSED
         assert card_obj.token == "2453-3423-6543-2342"
-        assert card_obj.type is card.Type.SINGLE_USE
+        assert card_obj.type is cards.Type.SINGLE_USE
         assert card_obj.memo == ""
 
     @pytest.mark.skip(reason="Not Implemented")

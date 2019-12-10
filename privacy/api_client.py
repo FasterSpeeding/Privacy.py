@@ -4,9 +4,9 @@ import typing
 
 
 from privacy.http_client import HTTPClient, Routes
-from privacy.schema.card import Card, SpendLimitDuration, State, Type
-from privacy.schema.transaction import Transaction
-from privacy.schema.embed import EmbedRequest
+from privacy.schema.cards import Card, SpendLimitDuration, State, Type
+from privacy.schema.transactions import Transaction
+from privacy.schema.embeds import EmbedRequest
 from privacy.util.functional import b64_encode, hmac_sign, optional
 from privacy.util.logging import LoggingClass
 
@@ -16,7 +16,7 @@ class APIClient(LoggingClass):
     The client used for using Privacy.com's restful api endpoints.
 
     Attributes:
-        api (privacy.http_client.HTTPClient): The client used for making requests.
+        http (privacy.http_client.HTTPClient): The client used for making requests.
     """
     def __init__(self, api_key: str, backoff: bool = True, sandboxed: bool = False) -> None:
         """
@@ -26,13 +26,13 @@ class APIClient(LoggingClass):
                 Will raises `privacy.http_client.APIException` instead of retrying if False.
             sandboxed (bool, optional): Used to enable Privacy's sandboxed api.
         """
-        self.api = HTTPClient(api_key, backoff, sandboxed)
+        self.http = HTTPClient(api_key, backoff, sandboxed)
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        return self.api.session.close()
+        return self.http.session.close()
 
     def update_api_key(self, api_key: str) -> None:
         """
@@ -41,17 +41,17 @@ class APIClient(LoggingClass):
         Args:
             api_key (str): The key used for authentication.
         """
-        self.api.session.headers["Authorization"] = "api-key " + api_key
+        self.http.session.headers["Authorization"] = "api-key " + api_key
 
     @property
     def api_key(self) -> str:
         """
-        Get the set api key.
+        Get the set api authorisation key.
 
         Returns:
             str: Api key.
         """
-        api_key = self.api.session.headers["Authorization"]
+        api_key = self.http.session.headers["Authorization"]
         return api_key.replace("api-key ", "")
 
     def cards_list(
@@ -68,7 +68,7 @@ class APIClient(LoggingClass):
             end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
 
         Returns:
-            `privacy.util.pagination.PaginatedResponse` [ `privacy.schema.card.Card` ]
+            `privacy.util.pagination.PaginatedResponse` [ `privacy.schema.cards.Card` ]
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
@@ -103,7 +103,7 @@ class APIClient(LoggingClass):
             end (str, optional): The end date of the results as a date string (`YYYY-MM-DD`).
 
         Returns:
-            `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.transaction.Transaction` ]
+            `privacy.util.pagination.PaginatedResponse`[ `privacy.schema.transactions.Transaction` ]
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
@@ -131,18 +131,18 @@ class APIClient(LoggingClass):
         PREMIUM ENDPOINT - Create a card.
 
         Args:
-            card_type (privacy.schema.card.Type): The card type.
+            card_type (privacy.schema.cards.Type): The card type.
             memo (str, optional): The card's name.
             spend_limit (int, optional): The spending limit of the card (in pennies).
-            spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): The spend limit duration.
+            spend_limit_duration (privacy.schema.cards.SpendLimitDuration, optional): The spend limit duration.
 
         Returns:
-            `privacy.schema.card.Card`
+            `privacy.schema.cards.Card`
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        request = self.api(
+        response = self.http(
             Routes.CARDS_CREATE,
             json=optional(
                 type=card_type,
@@ -151,7 +151,7 @@ class APIClient(LoggingClass):
                 spend_limit_duration=spend_limit_duration,
             )
         )
-        return Card(client=self.api, **request.json())
+        return Card(client=self, **response.json())
 
     def cards_modify(
             self, token: str, state: State = None,
@@ -162,21 +162,21 @@ class APIClient(LoggingClass):
 
         Args:
             token (str): The unique token of the card being modified.
-            state (privacy.schema.card.State, optional): The new card state.
+            state (privacy.schema.cards.State, optional): The new card state.
             memo (str, optional): The name card name.
             spend_limit (int, optional): The new card spend limit (in pennies).
-            spend_limit_duration (privacy.schema.card.SpendLimitDuration, optional): The spend limit duration.
+            spend_limit_duration (privacy.schema.cards.SpendLimitDuration, optional): The spend limit duration.
 
         Returns:
-            `privacy.schema.card.Card`
+            `privacy.schema.cards.Card`
 
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
 
         Note:
-            Setting state to `privacy.schema.card.State.CLOSED` cannot be undone.
+            Setting state to `privacy.schema.cards.State.CLOSED` cannot be undone.
         """
-        request = self.api(
+        response = self.http(
             Routes.CARDS_MODIFY,
             json=optional(
                 card_token=token,
@@ -186,14 +186,14 @@ class APIClient(LoggingClass):
                 spend_limit_duration=spend_limit_duration,
             )
         )
-        return Card(client=self.api, **request.json())
+        return Card(client=self, **response.json())
 
     def hoisted_card_ui_get(self, embed_request: typing.Union[EmbedRequest, dict]) -> str:
         """
         PREMIUM ENDPOINT - get a hosted card UI
 
         Args:
-            embed_request (privacy.schema.embed.EmbedRequest or dict): The embed request.
+            embed_request (privacy.schema.embeds.EmbedRequest or dict): The embed request.
 
         Returns:
             str: The iframe body.
@@ -206,7 +206,7 @@ class APIClient(LoggingClass):
         embed_request = b64_encode(bytes(embed_request_json, "utf-8"))
         embed_request_hmac = hmac_sign(self.api_key, embed_request)
 
-        return self.api(
+        return self.http(
             Routes.HOSTED_CARD_UI_GET,
             json=dict(embed_request=embed_request, hmac=embed_request_hmac),
         ).content
@@ -227,7 +227,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        return self.api(
+        return self.http(
             Routes.SIMULATE_AUTH,
             json=dict(
                 descriptor=descriptor,
@@ -248,7 +248,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        self.api(
+        self.http(
             Routes.SIMULATE_VOID,
             json=dict(token=token, amount=amount),
         )
@@ -265,7 +265,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        self.api(
+        self.http(
             Routes.SIMULATE_CLEARING,
             json=dict(token=token, amount=amount),
         )
@@ -286,7 +286,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        return self.api(
+        return self.http(
             Routes.SIMULATE_RETURN,
             json=dict(
                 descriptor=descriptor,

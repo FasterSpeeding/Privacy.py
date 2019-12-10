@@ -14,7 +14,12 @@ from privacy.util.pagination import PaginatedResponse
 
 class CustomBase(BaseModel, LoggingClass):
     """A custom version of `pydantic.BaseModel` used to handle api objects."""
-    client: typing.Any = None
+    _client: typing.Any = None
+
+    def __init__(self, **kwargs):
+        client = kwargs.pop("client", None)
+        super().__init__(**kwargs)
+        object.__setattr__(self, "_client", client)
 
     class Config:
         """Config for customising the behaviour of CustomBase."""
@@ -25,8 +30,12 @@ class CustomBase(BaseModel, LoggingClass):
 
     def dict(self, *args, **kwargs) -> dict:
         """Get this object's data as a dict."""
-        data = super(CustomBase, self).dict(*args, **kwargs)
-        data.pop("client", None)
+        data = super().dict(*args, **kwargs)
+        # Remove private attributes.
+        for key in list(data.keys()):
+            if key.startswith("_"):
+                del data[key]
+
         return data
 
     @classmethod

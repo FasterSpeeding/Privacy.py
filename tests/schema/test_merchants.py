@@ -1,9 +1,9 @@
 """Tests for privacy.schema.merchant"""
-from privacy.schema import merchant
+from privacy.schema import merchants
 
 
 def test_merchant():
-    merchant_obj = merchant.Merchant(**{
+    merchant_obj = merchants.Merchant(**{
         "acceptor_id": "th",
         "city": "London",
         "country": "GB",
