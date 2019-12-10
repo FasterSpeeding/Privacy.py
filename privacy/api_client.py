@@ -147,7 +147,7 @@ class APIClient(LoggingClass):
                 type=card_type, memo=memo, spend_limit=spend_limit, spend_limit_duration=spend_limit_duration,
             ),
         )
-        return Card(client=self, **response.json())
+        return Card(client=self, **response.json())# sss
 
     def cards_modify(
         self,
