@@ -146,9 +146,7 @@ class PaginatedResponse:
         self.get_starting_point()
         self._buffer.clear()
 
-    def set_direction(
-        self, direction: Direction = Direction.UP, page: int = None
-    ) -> None:
+    def set_direction(self, direction: Direction = Direction.UP, page: int = None) -> None:
         """
         Used to set the direction that this will crawl through pages during iteration.
 

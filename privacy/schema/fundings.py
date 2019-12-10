@@ -24,12 +24,8 @@ class Account(CustomBase):
         type (privacy.schema.fundings.Type): The type of funding source.
     """
 
-    account_name: typing.Optional[
-        str
-    ]  # TODO: This is undocumented behaviour where unset in possible new obj.
-    amount: typing.Optional[
-        int
-    ]  # TODO: this is an undocumented attributed and may justify a new obj.
+    account_name: typing.Optional[str]  # TODO: This is undocumented behaviour where unset in possible new obj.
+    amount: typing.Optional[int]  # TODO: this is an undocumented attributed and may justify a new obj.
     token: str
     type: Type
 

@@ -91,11 +91,7 @@ class HTTPClient(LoggingClass):
             self.BASE_URL = "https://sandbox.privacy.com/v1/"
 
     def __call__(
-        self,
-        route: typing.List[str],
-        url_kwargs: typing.Dict[str, str] = None,
-        retries: int = 0,
-        **kwargs,
+        self, route: typing.List[str], url_kwargs: typing.Dict[str, str] = None, retries: int = 0, **kwargs,
     ) -> requests.models.Response:
         """
         Args:
@@ -132,19 +128,13 @@ class HTTPClient(LoggingClass):
             raise APIException(response)
 
         # Handle backoff on 429s and 5xx.
-        if (
-            not self.backoff
-            or retries == self.RETRIES - 1
-            or not self.should_backoff(response)
-        ):
+        if not self.backoff or retries == self.RETRIES - 1 or not self.should_backoff(response):
             raise APIException(response)
 
         backoff = self.exponential_backoff(retries)
         retries += 1
         self.log.warning(
-            "Request failed with %s, retrying in %s seconds.",
-            response.status_code,
-            round(backoff, 4),
+            "Request failed with %s, retrying in %s seconds.", response.status_code, round(backoff, 4),
         )
         sleep(backoff)
         return self(route, url_kwargs, retries, **kwargs)

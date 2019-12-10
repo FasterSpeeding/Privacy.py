@@ -3,10 +3,7 @@ from privacy.util import functional
 
 
 def test_b64_encode():
-    assert (
-        functional.b64_encode(b"ok, this worked!?!?!?!?")
-        == "b2ssIHRoaXMgd29ya2VkIT8hPyE/IT8="
-    )
+    assert functional.b64_encode(b"ok, this worked!?!?!?!?") == "b2ssIHRoaXMgd29ya2VkIT8hPyE/IT8="
 
 
 def test_get_dict_path():
@@ -25,8 +22,7 @@ def test_get_dict_path():
 
 def test_hmac_sign():
     mock_signed = functional.hmac_sign(
-        "c268d61ad6f545339e6c6d194c1e4104",
-        "I am the computer man. I can do anything you can.",
+        "c268d61ad6f545339e6c6d194c1e4104", "I am the computer man. I can do anything you can.",
     )
     assert mock_signed == "fupsBqXVZUtsfwcukputmyWptu90rOTQUMEpgeHbH2Q="
 

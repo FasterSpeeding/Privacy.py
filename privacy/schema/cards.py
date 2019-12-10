@@ -89,9 +89,7 @@ class Card(CustomBase):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        card = self._client.cards_modify(
-            self.token, state, memo, spend_limit, spend_limit_duration,
-        )
+        card = self._client.cards_modify(self.token, state, memo, spend_limit, spend_limit_duration)
         self.__init__(**card.dict())
 
     def get_transactions(
@@ -121,9 +119,7 @@ class Card(CustomBase):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        return self._client.transactions_list(
-            approval_status, token, self.token, page, page_size, begin, end
-        )
+        return self._client.transactions_list(approval_status, token, self.token, page, page_size, begin, end)
 
     def __repr__(self):
         return f"<Card({self.memo}:{self.token})>"

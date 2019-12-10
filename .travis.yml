@@ -14,7 +14,7 @@ install:
 script:
   - poetry run pytest
   - poetry run flake8
-  - poetry run black $TRAVIS_BUILD_DIR --check
+  - poetry run black $TRAVIS_BUILD_DIR/privacy/ $TRAVIS_BUILD_DIR/tests/ --check
 
 deploy:
   provider: script

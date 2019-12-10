@@ -19,9 +19,7 @@ class APIClient(LoggingClass):
         http (privacy.http_client.HTTPClient): The client used for making requests.
     """
 
-    def __init__(
-        self, api_key: str, backoff: bool = True, sandboxed: bool = False
-    ) -> None:
+    def __init__(self, api_key: str, backoff: bool = True, sandboxed: bool = False) -> None:
         """
         Args:
             api_key (str): Used to set the default authorisation.
@@ -58,12 +56,7 @@ class APIClient(LoggingClass):
         return api_key.replace("api-key ", "")
 
     def cards_list(
-        self,
-        token: str = None,
-        page: int = None,
-        page_size: int = None,
-        begin: str = None,
-        end: str = None,
+        self, token: str = None, page: int = None, page_size: int = None, begin: str = None, end: str = None,
     ) -> typing.Iterable[Card]:
         """
         Get an iterator of the cards owned by this account.
@@ -84,9 +77,7 @@ class APIClient(LoggingClass):
         return Card.paginate(
             self,
             Routes.CARDS_LIST,
-            params=optional(
-                card_token=token, page=page, page_size=page_size, begin=begin, end=end,
-            ),
+            params=optional(card_token=token, page=page, page_size=page_size, begin=begin, end=end),
         )
 
     def transactions_list(
@@ -123,12 +114,7 @@ class APIClient(LoggingClass):
             Routes.TRANSACTIONS_LIST,
             dict(approval_status=approval_status),
             params=optional(
-                transaction_token=token,
-                card_token=card_token,
-                page=page,
-                page_size=page_size,
-                begin=begin,
-                end=end,
+                transaction_token=token, card_token=card_token, page=page, page_size=page_size, begin=begin, end=end,
             ),
         )
 
@@ -158,10 +144,7 @@ class APIClient(LoggingClass):
         response = self.http(
             Routes.CARDS_CREATE,
             json=optional(
-                type=card_type,
-                memo=memo,
-                spend_limit=spend_limit,
-                spend_limit_duration=spend_limit_duration,
+                type=card_type, memo=memo, spend_limit=spend_limit, spend_limit_duration=spend_limit_duration,
             ),
         )
         return Card(client=self, **response.json())
@@ -205,9 +188,7 @@ class APIClient(LoggingClass):
         )
         return Card(client=self, **response.json())
 
-    def hoisted_card_ui_get(
-        self, embed_request: typing.Union[EmbedRequest, dict]
-    ) -> str:
+    def hoisted_card_ui_get(self, embed_request: typing.Union[EmbedRequest, dict]) -> str:
         """
         PREMIUM ENDPOINT - get a hosted card UI
 
@@ -221,17 +202,12 @@ class APIClient(LoggingClass):
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
         # Support both pydantic objects and json serializable dicts.
-        embed_request_json = (
-            embed_request.json()
-            if hasattr(embed_request, "json")
-            else json.dumps(embed_request)
-        )
+        embed_request_json = embed_request.json() if hasattr(embed_request, "json") else json.dumps(embed_request)
         embed_request = b64_encode(bytes(embed_request_json, "utf-8"))
         embed_request_hmac = hmac_sign(self.api_key, embed_request)
 
         return self.http(
-            Routes.HOSTED_CARD_UI_GET,
-            json=dict(embed_request=embed_request, hmac=embed_request_hmac),
+            Routes.HOSTED_CARD_UI_GET, json=dict(embed_request=embed_request, hmac=embed_request_hmac),
         ).content
 
     # Sandbox
@@ -250,10 +226,7 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        return self.http(
-            Routes.SIMULATE_AUTH,
-            json=dict(descriptor=descriptor, pan=pan, amount=amount,),
-        ).json()
+        return self.http(Routes.SIMULATE_AUTH, json=dict(descriptor=descriptor, pan=pan, amount=amount)).json()
 
     def void_simulate(self, token: str, amount: int) -> None:
         """
@@ -303,7 +276,4 @@ class APIClient(LoggingClass):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        return self.http(
-            Routes.SIMULATE_RETURN,
-            json=dict(descriptor=descriptor, pan=pan, amount=amount),
-        ).json()
+        return self.http(Routes.SIMULATE_RETURN, json=dict(descriptor=descriptor, pan=pan, amount=amount)).json()

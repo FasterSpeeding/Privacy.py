@@ -9,11 +9,7 @@ from privacy.schema import cards, fundings
 def mock_card_payload():
     return {
         "cvv": "032",
-        "funding": {
-            "account_name": "Major Park",
-            "token": "4953-3234-1236",
-            "type": "CARD_DEBIT",
-        },
+        "funding": {"account_name": "Major Park", "token": "4953-3234-1236", "type": "CARD_DEBIT"},
         "exp_month": "02",
         "exp_year": "2032",
         "hostname": "",
