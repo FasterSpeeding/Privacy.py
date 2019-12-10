@@ -35,6 +35,8 @@ requests = "2.22.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.4"
+flake8 = "3.7.9"
+black = "19.10b0"
 
 [tool.black]
 line-length     = 120
