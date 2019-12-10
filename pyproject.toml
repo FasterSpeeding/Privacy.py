@@ -35,9 +35,13 @@ requests = "2.22.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.4"
-flake8 = "3.7.9"
 
 [tool.black]
 line-length     = 120
-target-version  = ["py36", ""py37", "py38"]
+target-version  = ["py36", "py37", "py38"]
 include         = ".*py$"
+
+[tool.flake8]
+max-line-length = 120
+per-file-ignores = privacy/__init__.py:F401
+exclude = tests\*
