@@ -66,9 +66,6 @@ class TestAPIClient:
 
     @pytest.mark.skip(reason="Not Implemented")
     def test_cards_create(self, mock_api_client, mock_card_payload):
-        # with mock.patch.object(mock_api_client.http.session, "request", return_value=make_mock_response(return_data)) as mock_api:
-    #    mock_api_client.http.session.request = mock.MagicMock(return_value=make_mock_response(return_data))
-    #     mock_api_client.http.session.request.return_value = make_mock_response(return_data)
         mock_api_client.http.return_value = make_mock_response(mock_card_payload)
         result = mock_api_client.cards_create(
             card_type=cards.Type.SINGLE_USE,
@@ -84,7 +81,8 @@ class TestAPIClient:
                 "memo": "Robbin Williams quote",
                 "spend_limit": 55,
                 "spend_limit_duration": cards.SpendLimitDuration.MONTHLY,
-        })
+            }
+        )
 
     @pytest.mark.skip(reason="Not Implemented")
     def test_cards_modify(self, mock_api_client, mock_card_payload):
@@ -105,4 +103,5 @@ class TestAPIClient:
                 "memo": "rip",
                 "spend_limit": 22,
                 "spend_limit_duration": cards.SpendLimitDuration.FOREVER,
-        })
+            }
+        )
