@@ -15,6 +15,8 @@ script:
   - poetry run pytest
   - poetry run flake8
   - poetry run black $TRAVIS_BUILD_DIR/privacy/ $TRAVIS_BUILD_DIR/tests/ --check
+  - echo $TRAVIS_BUILD_DIR/privacy/
+  - echo $TRAVIS_BUILD_DIR/tests/
 
 deploy:
   provider: script
