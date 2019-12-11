@@ -228,8 +228,7 @@ class APIClient(LoggingClass):
         """
         return self.http(Routes.SIMULATE_AUTH, json=dict(descriptor=descriptor, pan=pan, amount=amount)).json()
 
-    def void_simulate(
-            self, token: str, amount: int) -> None:
+    def void_simulate(self, token: str, amount: int) -> None:
         """
         SANDBOX ENDPOINT - Void an existing, uncleared/pending authorisation.
 
