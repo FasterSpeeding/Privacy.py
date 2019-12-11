@@ -14,7 +14,7 @@ install:
 script:
   - poetry run pytest
   - poetry run flake8
-  - poetry run black --check . || true
+  - poetry run black --check . || false
 
 deploy:
   provider: script
