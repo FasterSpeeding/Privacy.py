@@ -147,7 +147,7 @@ class APIClient(LoggingClass):
                 type=card_type, memo=memo, spend_limit=spend_limit, spend_limit_duration=spend_limit_duration,
             ),
         )
-        return Card(client=self, **response.json())# sss
+        return Card(client=self, **response.json())
 
     def cards_modify(
         self,
@@ -228,7 +228,8 @@ class APIClient(LoggingClass):
         """
         return self.http(Routes.SIMULATE_AUTH, json=dict(descriptor=descriptor, pan=pan, amount=amount)).json()
 
-    def void_simulate(self, token: str, amount: int) -> None:
+    def void_simulate(
+            self, token: str, amount: int) -> None:
         """
         SANDBOX ENDPOINT - Void an existing, uncleared/pending authorisation.
 
