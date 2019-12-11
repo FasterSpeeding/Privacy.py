@@ -22,8 +22,7 @@ def test_get_dict_path():
 
 def test_hmac_sign():
     mock_signed = functional.hmac_sign(
-        "c268d61ad6f545339e6c6d194c1e4104",
-        "I am the computer man. I can do anything you can.",
+        "c268d61ad6f545339e6c6d194c1e4104", "I am the computer man. I can do anything you can.",
     )
     assert mock_signed == "fupsBqXVZUtsfwcukputmyWptu90rOTQUMEpgeHbH2Q="
 

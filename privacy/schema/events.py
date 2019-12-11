@@ -8,6 +8,7 @@ from privacy.schema.base import CustomBase
 
 class Result(Enum):
     """An enum of the transaction results."""
+
     APPROVED = "APPROVED"
     CARD_PAUSED = "CARD_PAUSED"
     CARD_CLOSED = "CARD_CLOSED"
@@ -30,6 +31,7 @@ class Result(Enum):
 
 class Type(Enum):
     """An enum of the event types"""
+
     AUTHORIZATION = "AUTHORIZATION"
     AUTHORIZATION_ADVICE = "AUTHORIZATION_ADVICE"
     CLEARING = "CLEARING"  # TODO: the docs are probably dodgy
@@ -48,6 +50,7 @@ class Event(CustomBase):
         token (str): The globally unique identifier of the event.
         type (privacy.schema.events.Type): The event type.
     """
+
     amount: int
     created: datetime
     result: Result  # TODO: Check this

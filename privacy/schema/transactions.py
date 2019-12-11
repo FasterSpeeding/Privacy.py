@@ -13,6 +13,7 @@ from privacy.schema.merchants import Merchant
 
 class Status(Enum):
     """An enum of the transaction statuses"""
+
     PENDING = "PENDING"
     VOIDED = "VOIDED"
     SETTLING = "SETTLING"
@@ -36,6 +37,7 @@ class Transaction(CustomBase):
         status (privacy.schema.transactions.Status): The status of this transaction.
         token (int): The globally unique identifier for this transaction.
     """
+
     amount: int
     card: Card
     created: datetime

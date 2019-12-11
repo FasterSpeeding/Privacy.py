@@ -63,5 +63,5 @@ class TestModel:
 
     @staticmethod
     def test_autodict(MockModel, mock_payload):
-        mock_dict = MockModel.autodict([mock_payload], ("i_int", ))
+        mock_dict = MockModel.autodict([mock_payload], ("i_int",))
         assert mock_dict[55] == MockModel

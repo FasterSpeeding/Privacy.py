@@ -8,6 +8,7 @@ from privacy.schema.base import CustomBase
 
 class Type(Enum):
     """An enum of the Funding Account Type."""
+
     DEPOSITORY_CHECKING = "DEPOSITORY_CHECKING"
     DEPOSITORY_SAVINGS = "DEPOSITORY_SAVINGS"
     CARD_DEBIT = "CARD_DEBIT"
@@ -22,6 +23,7 @@ class Account(CustomBase):
         token (str): The global unique identifier for the account.
         type (privacy.schema.fundings.Type): The type of funding source.
     """
+
     account_name: typing.Optional[str]  # TODO: This is undocumented behaviour where unset in possible new obj.
     amount: typing.Optional[int]  # TODO: this is an undocumented attributed and may justify a new obj.
     token: str

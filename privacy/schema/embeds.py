@@ -15,6 +15,7 @@ class EmbedRequest(CustomBase):
         css (str): A publicly available URI used for styling the hosted white-labeled iframe.
         expiration (datetime.datetime, optional): The datetime for when the request should expire.
     """
+
     token: str
     css: str
     expiration: typing.Optional[datetime]

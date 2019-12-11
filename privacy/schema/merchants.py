@@ -14,6 +14,7 @@ class Merchant(CustomBase):
         mcc (str): The merchant category code.
         state (str): The geographic state of this card acceptor.
     """
+
     acceptor_id: str
     city: str
     country: str

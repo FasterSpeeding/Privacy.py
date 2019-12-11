@@ -4,6 +4,7 @@ import logging
 
 class LoggingClass:
     """A logging class"""
+
     _log: logging.Logger
 
     @property

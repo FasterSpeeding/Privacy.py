@@ -10,6 +10,7 @@ from privacy.util.pagination import PaginatedResponse
 
 class Type(Enum):
     """An enum of the Card Type."""
+
     SINGLE_USE = "SINGLE_USE"
     MERCHANT_LOCKED = "MERCHANT_LOCKED"
     UNLOCKED = "UNLOCKED"
@@ -18,6 +19,7 @@ class Type(Enum):
 
 class State(Enum):
     """An enum of the Card State."""
+
     OPEN = "OPEN"
     PAUSED = "PAUSED"
     CLOSED = "CLOSED"
@@ -25,6 +27,7 @@ class State(Enum):
 
 class SpendLimitDuration(Enum):
     """An enum of the Card Spend Limit Durations."""
+
     TRANSACTION = "TRANSACTION"
     MONTHLY = "MONTHLY"
     ANNUALLY = "ANNUALLY"
@@ -48,6 +51,7 @@ class Card(CustomBase):
         token (str): The unique identifier of this card.
         type (privacy.schema.cards.Type): The card type.
     """
+
     cvv: typing.Optional[str]
     funding: Account
     exp_month: typing.Optional[str]
@@ -63,9 +67,12 @@ class Card(CustomBase):
     type: Type
 
     def update(
-            self, state: State = None, memo: str = None,
-            spend_limit: int = None,
-            spend_limit_duration: SpendLimitDuration = None) -> None:
+        self,
+        state: State = None,
+        memo: str = None,
+        spend_limit: int = None,
+        spend_limit_duration: SpendLimitDuration = None,
+    ) -> None:
         """
         PREMIUM ENDPOINT - Modify an existing card.
 
@@ -82,15 +89,18 @@ class Card(CustomBase):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        card = self._client.cards_modify(
-            self.token, state, memo, spend_limit, spend_limit_duration,
-        )
+        card = self._client.cards_modify(self.token, state, memo, spend_limit, spend_limit_duration)
         self.__init__(**card.dict())
 
     def get_transactions(
-            self, approval_status: str = "all", token: str = None,
-            page: int = None, page_size: int = None, begin: str = None,
-            end: str = None) -> PaginatedResponse:
+        self,
+        approval_status: str = "all",
+        token: str = None,
+        page: int = None,
+        page_size: int = None,
+        begin: str = None,
+        end: str = None,
+    ) -> PaginatedResponse:
         """
         Get an iterator of the transactions under this account.
 
@@ -109,9 +119,7 @@ class Card(CustomBase):
         Raises:
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
-        return self._client.transactions_list(
-            approval_status, token, self.token,
-            page, page_size, begin, end)
+        return self._client.transactions_list(approval_status, token, self.token, page, page_size, begin, end)
 
     def __repr__(self):
         return f"<Card({self.memo}:{self.token})>"

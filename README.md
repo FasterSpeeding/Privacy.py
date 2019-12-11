@@ -1,3 +1,8 @@
+[![](https://badgen.net/pypi/v/privacy.py)](https://pypi.org/project/privacy.py)
+[![](https://img.shields.io/pypi/status/privacy.py)](?)
+[![](https://img.shields.io/pypi/pyversions/privacy.py)](?)
+[![](https://img.shields.io/badge/code%20style-black-000000.svg)](?)
+
 # Privacy.py
 A Python wrapper for the [Privacy API](https://developer.privacy.com/).
 

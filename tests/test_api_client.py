@@ -28,11 +28,7 @@ def mock_api_client():  # mock_HTTPClient
 def mock_card_payload():
     return {
         "created": "",
-        "funding": {
-            "account_name": "THIS_IS_AN_ACCOUNT",
-            "token": "3234-1231-1231",
-            "type": "CARD_DEBIT"
-        },
+        "funding": {"account_name": "THIS_IS_AN_ACCOUNT", "token": "3234-1231-1231", "type": "CARD_DEBIT"},
         "hostname": "",
         "last_four": "4212",
         "memo": "Robbin Williams quote",
@@ -55,9 +51,7 @@ class TestAPIClient:
     @pytest.mark.skip(reason="Not Implemented")
     def test_cards_list(self, mock_api_client):
         mock_api_client.cards_list(
-            token="a_token",
-            page=4,
-            page_size=2,
+            token="a_token", page=4, page_size=2,
         )
 
     @pytest.mark.skip(reason="Not Implemented")
@@ -81,7 +75,7 @@ class TestAPIClient:
                 "memo": "Robbin Williams quote",
                 "spend_limit": 55,
                 "spend_limit_duration": cards.SpendLimitDuration.MONTHLY,
-            }
+            },
         )
 
     @pytest.mark.skip(reason="Not Implemented")
@@ -103,5 +97,5 @@ class TestAPIClient:
                 "memo": "rip",
                 "spend_limit": 22,
                 "spend_limit_duration": cards.SpendLimitDuration.FOREVER,
-            }
+            },
         )
