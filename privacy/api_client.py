@@ -1,5 +1,4 @@
 """The main client of this module."""
-import json
 import typing
 
 
@@ -9,6 +8,7 @@ from privacy.schema.transactions import Transaction
 from privacy.schema.embeds import EmbedRequest
 from privacy.util.functional import b64_encode, hmac_sign, optional
 from privacy.util.logging import LoggingClass
+from privacy.util.json import CustomJsonEncoder
 
 
 class APIClient(LoggingClass):
@@ -52,8 +52,7 @@ class APIClient(LoggingClass):
         Returns:
             str: Api key.
         """
-        api_key = self.http.session.headers["Authorization"]
-        return api_key.replace("api-key ", "")
+        return self.http.session.headers["Authorization"].replace("api-key ", "")
 
     def cards_list(
         self, token: str = None, page: int = None, page_size: int = None, begin: str = None, end: str = None,
@@ -202,7 +201,7 @@ class APIClient(LoggingClass):
             APIException (privacy.http_client.APIException): On status code 5xx and certain 429s.
         """
         # Support both pydantic objects and json serializable dicts.
-        embed_request_json = embed_request.json() if hasattr(embed_request, "json") else json.dumps(embed_request)
+        embed_request_json = CustomJsonEncoder.dumps(embed_request)
         embed_request = b64_encode(bytes(embed_request_json, "utf-8"))
         embed_request_hmac = hmac_sign(self.api_key, embed_request)
 
