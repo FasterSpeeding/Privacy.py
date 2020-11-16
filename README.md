@@ -74,7 +74,7 @@ card = client.cards_modify(
 card.update(*, **)  # Where the token used is from the card this is attached to.
 
 # Used to get a hosted card UI.
-client.hoisted_card_ui_get(
+client.hosted_card_ui_get(
     embed_request=privacy.schema.embeds.EmbedRequest,  # An embed request object.
 )
 ```

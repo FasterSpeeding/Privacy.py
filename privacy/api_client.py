@@ -187,7 +187,7 @@ class APIClient(LoggingClass):
         )
         return Card(client=self, **response.json())
 
-    def hoisted_card_ui_get(self, embed_request: typing.Union[EmbedRequest, dict]) -> str:
+    def hosted_card_ui_get(self, embed_request: typing.Union[EmbedRequest, dict]) -> str:
         """
         PREMIUM ENDPOINT - get a hosted card UI
 
