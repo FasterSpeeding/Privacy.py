@@ -30,7 +30,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.6,<3.10"
-pydantic = "1.0"
+pydantic = "1.7.4"
 requests = "2.22.0"
 
 [tool.poetry.dev-dependencies]
